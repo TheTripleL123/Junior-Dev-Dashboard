@@ -1,0 +1,132 @@
+{
+  "test_name": "6b2dd408-29c1-4177-9dc4-891bfed419f4",
+  "timestamp": "01-10-2026_18-03-38",
+  "finished_at": "01-10-2026_18-27-19",
+  "duration_minutes": 24,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Root cause: BotHealthBar.Setup took its stun source via GetComponentInParent<IStunComponent>(), which bound to runtime EntityProxy objects (JunkDogSpikes on RibCage, ArmorEntity proxies on PhysicsRig) sitting between the bar and the dog; proxies never accumulate stunDamage, so the bar stayed empty while the dog still got stunned. Bloodhound's armor proxy is on Head (not above the bar), so it worked. Fix: use the proxy-resolved entity from GameEntity.GetEntity (baseEntity). Verified in SP Rampage Arena: on Junkdog - Spiked, Junkdog Armored-Left, JungleDog - Spiked, JungleDog Armored-Right and on base Junkdog, Bloodhound, base JungleDog the bar binds to JunkDogEntity, the bar value equals entity stunDamage after each of 3 hits, and the 4th hit stuns; screenshots show ~60% fill and the full stunned bar on all of them. Hits were applied via AddStunDamage from the bridge, not physical punches.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for certain singleplayer enemies, the stun bar UI does not visually update/fill as the enemy takes hits, even though the enemy does eventually become stunned after enough hits land. The stun mechanic itself is working (enemies do get stunned), but the stun bar display stays static/unchanged instead of reflecting progress toward stun.\n\nAffected enemies (reproduce and verify the fix against all of these):\n1. All Junkdog variants EXCEPT the base Junkdog and the Bloodhound Junkdog (those two work correctly).\n2. All Jungledog variants EXCEPT the normal/base Jungledog (that one works correctly).\n\nSo the bug only affects non-base variants of these two enemy types, while the base versions work fine. Use that as a strong lead: compare how the stun bar / stun accumulation is wired up or initialized for the base/working variants versus the broken variants (e.g. differences in prefab setup, inherited components, overridden values, or stats configuration tied to stun bar updates) to find where the broken variants diverge.\n\nInvestigate the root cause and fix it so the stun bar correctly updates/fills in real time as hits land for all of the affected enemy variants, matching the behavior of the working base variants. Verify by testing hits against at least one previously-broken Junkdog variant and one previously-broken Jungledog variant, confirming the stun bar now visibly progresses with each hit and still results in a stun at the appropriate threshold, and confirm the already-working base Junkdog, Bloodhound Junkdog, and base Jungledog remain unaffected.\n\nConstraint: do not use /conversations at all during this investigation or fix.",
+  "commit_ref": "master",
+  "commit_sha": "858d2f00429970358c665bcdb01747d9c7266775",
+  "work_branch": "Automations/ClaudeJuniorDev/6b2dd408-29c1-4177-9dc4-891bfed419f4",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/57",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "BotHealthBar._stunComponent is JunkDogEntity (not EntityProxy) on Junkdog - Spiked, Junkdog Armored(-Left), JungleDog - Spiked, JungleDog Armored-Right, base Junkdog, Bloodhound, base JungleDog",
+    "EntityProxy present on RibCage/PhysicsRig of the broken variants (root cause confirmed at runtime)",
+    "Stun bar value tracks entity stunDamage after each of 3 x 30% hits on all 7 dogs; 4th hit stuns every dog",
+    "Visual: ~60% stun fill and full stunned bar on broken and working variants alike"
+  ],
+  "not_done": [
+    "Stun applied via AddStunDamage from the bridge, not physical punches",
+    "Turbo / Pet / Sandbox variants not spawned (same proxy code path)",
+    "Jungledog Armored Both not tested: its debug spawn action fails with 'Could not find prefab' (pre-existing); Armored-Right tested instead",
+    "MP PlayerHealthBar has the same lookup - out of SP scope, not changed"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Jungledog Armored Both' (pre-existing broken debug spawn action, unrelated)",
+    "An abnormal situation has occurred: the PlayerLoop internal function has been called recursively (test artifact from EditorApplication.Step via bridge)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.56,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "Junkdog_-_Spiked-partial60",
+      "caption": "Previously broken Junkdog - Spiked: stun bar ~60% filled after 2 hits (bar faced to camera, dog isolated)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "Junkdog_Armored-Left-partial60",
+      "caption": "Previously broken Junkdog Armored-Left: stun bar ~60% filled after 2 hits"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "JungleDog_-_Spiked-partial60",
+      "caption": "Previously broken JungleDog - Spiked: stun bar ~60% filled after 2 hits"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "JungleDog_Armored-Right-partial60",
+      "caption": "Previously broken JungleDog Armored-Right: stun bar ~60% filled after 2 hits"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "Junkdog-partial60",
+      "caption": "Regression - base Junkdog: stun bar ~60% filled, unchanged behaviour"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "Junkdog_-_Bloodhound-partial60",
+      "caption": "Regression - Junkdog - Bloodhound: stun bar ~60% filled, unchanged behaviour"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "JungleDog-partial60",
+      "caption": "Regression - base JungleDog: stun bar ~60% filled, unchanged behaviour"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "Junkdog_-_Spiked-stunned",
+      "caption": "Junkdog - Spiked after threshold hit: full stunned bar + stun icon"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "Junkdog_Armored-Left-stunned",
+      "caption": "Junkdog Armored-Left after threshold hit: full stunned bar + stun icon"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "JungleDog_-_Spiked-stunned",
+      "caption": "JungleDog - Spiked after threshold hit: stunned bar"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "JungleDog_Armored-Right-stunned",
+      "caption": "JungleDog Armored-Right after threshold hit: stunned bar"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "Junkdog-stunned",
+      "caption": "Regression - base Junkdog stunned bar"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "Junkdog_-_Bloodhound-stunned",
+      "caption": "Regression - Bloodhound stunned bar"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "JungleDog-stunned",
+      "caption": "Regression - base JungleDog stunned bar"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "jungledog-spiked-stun-80pct",
+      "caption": "JungleDog - Spiked at 56/70 stun during the first arena pass: bar ~80% filled"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "b6df7c3c-5e01-4989-a930-373ee0ed294a",
+  "session_job_result": "success",
+  "github_run_id": "36903389030",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36903389030",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/180I1mjzyOEgeSP8W6ZtFRfPV2j0xZstg"
+}

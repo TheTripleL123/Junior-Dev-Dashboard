@@ -1,0 +1,56 @@
+{
+  "test_name": "97b2ed19-7279-4e62-8fec-08a321b17317",
+  "timestamp": "29-09-2026_20-34-50",
+  "finished_at": "29-09-2026_21-08-08",
+  "duration_minutes": 33,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Reproduced in a Quick Rampage play session with the Gorilla mech (Swinger arms, PWR 3/3). A direct equip of an arm-only addon onto the cockpit is blocked (ItemDef.CanEquip mask check, and items.json/assets list these addons as Arm only, so that claim is refuted). The real entry point is the garage swap: MechUI.DetermineAction only validates the dragged item, and PlayerGameState.SwapItems moves the displaced item without validation. Swapping Weight Pack (Cockpit|Arm) from the cockpit onto Megafrictor moved Megafrictor to the cockpit, and the -1 PWR nerf disappeared (L.PWR 2 -> 3), which confirms the MechAddonDef.ApplyOn ArmDef check. After a mech rebuild, MegafrictorBehaviour was on Chassis, which is an ancestor of both arm entities, confirming the ProcessModifyOutgoingInteraction claim. The reverse swap put Triple Bus on ArmLeft and it still granted +1 PWR to both arms through its exploded sub-items. No code was changed.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Reproduce the following RAMPAGE bug in Unity play mode and confirm/deny the root cause analysis already done statically.\n\nBug: Arm addons (e.g. Overdrives, Mega Frictor, Major Cabal) can be equipped/swapped onto the body (cockpit) slot instead of an arm slot. When this happens, the addon's stat benefit is applied to BOTH arms simultaneously, while the drawback/nerf that would normally apply when the addon is correctly slotted on an arm is skipped entirely. There is also a related, opposite-direction bug: some body-only addons (e.g. Phantom Limb, Triple Bus) incorrectly get an arm-only benefit applied when slotted on a busted/replacement arm.\n\nStatic code review (no live Unity available in that pass) pointed at two spots as the likely root cause and they need to be confirmed against actual runtime behavior:\n- MechAddonDef.ApplyOn (MechAddonDef.cs, around line 11-14): the PWR nerf for an arm addon is only applied when the current host item's definition is an ArmDef. If the same addon is instead hosted on the cockpit, this nerf is never applied.\n- GameEntity.ProcessModifyOutgoingInteraction (GameEntity.cs, around line 3186): this runs an addon's CombatSetup behavior on all ancestor entities. Since the cockpit is an ancestor of both arm entities, an addon slotted on the cockpit ends up running its CombatSetup (and therefore its stat benefit) on both arms.\n- items.json also still lists items like Overdrives as legal for the body/cockpit slot, which is what allows this illegal-seeming swap in the first place.\n\nTo reproduce in play mode:\n1. Start a session (skirmish or whatever gets you to a mech loadout/hangar screen fastest) and open a mech's loadout/customization screen.\n2. Attempt to equip an arm-restricted addon (Overdrives, Mega Frictor, or Major Cabal) into the cockpit/body slot. Confirm whether the game currently allows this equip at all (this matters \u2014 if it's blocked by UI/validation now, the bug may only be reachable via save-file editing, console commands, or another entry point; try those if the direct UI equip is blocked).\n3. Once equipped on the body, enter combat (skirmish/instant action is fine) and check both arms' stats/combat log for the addon's benefit (e.g. power level bonus) \u2014 confirm whether it applies to both arms simultaneously.\n4. Check whether the normal PWR nerf/drawback for that addon (the one that would apply if it were correctly slotted on a single arm) is present or missing when it's slotted on the body.\n5. Separately, test a body-only addon (Phantom Limb or Triple Bus) slotted onto a busted/replacement arm, and confirm whether it incorrectly grants its arm-only benefit in that slot.\n6. Record exact repro steps, screenshots/log excerpts of the stat values on both arms, and whether behavior matches the static analysis above. If the bug does not reproduce as described, note what actually happens instead.\n\nThis is a repro/verification task, not a fix \u2014 do not change ApplyOn, ProcessModifyOutgoingInteraction, or items.json. Just confirm or refute the analysis with actual play-mode evidence and report findings clearly enough for someone else to write the fix.",
+  "commit_ref": "master",
+  "commit_sha": "8ff1fd826378ffb50e56df94b54d53df88bdcd55",
+  "work_branch": "ClaudeJuniorDev/97b2ed19-7279-4e62-8fec-08a321b17317",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "AddItem(Megafrictor, Cockpit) rejected: 'Mask mismatch: slot=Cockpit equipSlots=Arm'; AddItem(Triple Bus, ArmLeft) rejected likewise",
+    "Megafrictor on ArmLeft: L.PWR=2 R.PWR=3 (nerf applied)",
+    "MechUI swap gate: dragged Weight Pack->ArmLeft CanEquip=True; displaced Megafrictor->Cockpit CanEquip=False but unchecked; SwapItems put Megafrictor on Cockpit",
+    "Megafrictor on Cockpit: L.PWR=3 R.PWR=3 (nerf skipped)",
+    "After ReinstantiateMechInPlace: MegafrictorBehaviour on 'Chassis'; both 'Mech Arm - Swinger_Left' and '_Right' have Chassis as ancestor",
+    "Swap moved Triple Bus onto ArmLeft; exploded Triple Bus Servo sub-items still on both arms, PWR 4/4"
+  ],
+  "not_done": [
+    "No VR garage drag-and-drop (no headset); the same CanEquip + SwapItems calls were driven via the bridge",
+    "No live punch/damage event observed; the per-arm effect was shown via behaviour placement and ancestor chain",
+    "Overdrives and Major Cabal not probed individually (Megafrictor used as representative arm-only addon with a PWR nerf)",
+    "Phantom Limb not probed at runtime; its Explode hardcodes ArmLeft/ArmRight the same as Triple Bus (static only)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "rampage-arena-gorilla-mech",
+      "caption": "Rampage Arena session the probe ran in (context only; stat values came from bridge output)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "GitHub Actions 1000030172",
+  "session_id": "68e16ae8-4655-4cfc-a3a5-74a3b380f291",
+  "session_job_result": "success",
+  "github_run_id": "36627147052",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36627147052",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1rGyt2TEmXSLszNRYjW_3ZMB9gjL2mbfj"
+}

@@ -1,0 +1,43 @@
+{
+  "test_name": "eba32088-0289-422f-b7f7-f23c79105695",
+  "timestamp": "29-09-2026_18-25-27",
+  "finished_at": "29-09-2026_18-51-34",
+  "duration_minutes": 26,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Root cause (from source + prefab YAML, not verified at runtime): BotHealthBar.Setup binds the stun bar via GetComponentInParent<IStunComponent>(), which resolves to an EntityProxy (Spiked dogs via JunkDogSpikes, Armored dogs via ArmorEntity proxies on PhysicsRig) or a bubble GameEntity (Mantis/Ussam) that has no status effects, so the bar reads stunDamage=0 while the root entity accumulates stun normally. Bloodhound works because its armor only protects Head, which is not above the bar. Bombots are a separate cause: BombBotEntity.ModifyIncomingInteraction strips Damage.Type.Stun. Fix: walk the stun source up past GameEntities with hasStatusEffects=false (same approach as the existing health loop), and stop stripping Stun on bombots. The change is committed locally but not compiled (Unity was still doing a full asset import) and not pushed (git push permission was denied), so no PR exists.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for a number of enemies, the stun bar UI does not visibly fill or change as the enemy takes stun-type damage, yet after enough qualifying hits the enemy does become stunned anyway. This happens on current master and was also confirmed present in build 12010, so it is not a regression from a recent change.\n\nAffected enemies:\n1. All junkdogs except the base junkdog and the bloodhound junkdog\n2. All bombots\n3. All jungledogs except the normal/base jungledog\n4. All bosses\n\nKnown findings so far, to speed up the investigation:\n- Bombots: there is a confirmed code bug, not a YAML/asset override issue. In BombBotEntity.cs, the method ModifyIncomingInteraction (around lines 71-79) strips Damage.Type.Stun from every incoming hit, so the stun bar can never fill from damage. Any stun bombots do end up receiving appears to come from a non-damage source (e.g. a hack/quirk) calling Stun() directly, bypassing the bar entirely. This needs to be fixed so stun-type damage actually accumulates in the stun bar instead of being stripped.\n- Junkdogs/jungledogs (Armored/Spiked variants etc.): checked their data and all these variants inherit stunBuffer=50, same as the base versions \u2014 so this rules out a per-prefab stunBuffer value override as the cause. The actual cause for these enemies (and for bosses) is not yet confirmed and needs a live check in the editor to find where the stun bar UI fails to update despite the underlying stun accumulation working.\n\nTask:\n- Investigate and confirm the root cause for each of the four affected groups (junkdogs, bombots, jungledogs, bosses) \u2014 do not assume they all share one cause; bombots already have a distinct confirmed code-level cause, the others still need confirmation via live testing in the editor (e.g. checking whether the stun bar UI is bound/updating correctly for these enemy types, checking for YAML/asset overrides, and checking any shared vs per-type logic differences from the base/unaffected variants that do work correctly).\n- Implement a fix so that the stun bar UI visibly fills/updates in sync with stun-type damage for all listed affected enemies, matching the correct working behavior seen on base junkdog, bloodhound junkdog, and normal/base jungledog.\n- Done means: hitting any of the listed affected enemies with stun-type damage visibly updates their stun bar in real time, and the enemy still becomes stunned at the same point it does today (or as appropriate given the fix).",
+  "commit_ref": "master",
+  "commit_sha": "152aa5c3ccaef5f3fad727d66d1623a3b11eef7a",
+  "work_branch": "ClaudeJuniorDev/eba32088-0289-422f-b7f7-f23c79105695",
+  "pr_url": null,
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs",
+    "Assets/Scripts/Combat/Entities/Bots/BombBot/BombBotEntity.cs"
+  ],
+  "verified": [],
+  "not_done": [
+    "Compile - Unity editor was still in full asset import for the whole budget",
+    "Push and draft PR - git push permission not granted in this session",
+    "Live editor verification of all four groups",
+    "Bosses Cerberus (stun likely accumulates on CerberusHeadEntity heads, not the root the bar reads), Jack, Dozer, Alpha Dog - root cause not found from source; needs a live check",
+    "Bombot: not confirmed that the bombot prefab's statusEffectFlags include Stun, so stun damage may still be ignored by Stun()",
+    "PlayerHealthBar.cs:144 has the same GetComponentInParent<IStunComponent> lookup - not changed"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "GitHub Actions 1000030110",
+  "session_id": "2ceebfd2-907e-4d61-9e9b-83aaad113afc",
+  "session_job_result": "success",
+  "github_run_id": "36611540251",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36611540251",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1-6ySvbc5VOmXifeJdYTdBzE3M_-8ib5C"
+}

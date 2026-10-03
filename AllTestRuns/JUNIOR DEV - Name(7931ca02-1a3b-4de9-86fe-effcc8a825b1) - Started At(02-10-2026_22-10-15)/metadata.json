@@ -1,0 +1,149 @@
+{
+  "test_name": "Stun bar static on Junkdog/Jungledog variants - 7931ca02-1a3b-4de9-86fe-effcc8a825b1",
+  "timestamp": "02-10-2026_22-10-15",
+  "finished_at": "02-10-2026_22-34-26",
+  "duration_minutes": 24,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "BotHealthBar.Setup resolved its stun source with GetComponentInParent<IStunComponent>(), which on Spiked/Armored dog variants hit an EntityProxy on the rig (RibCage/PhysicsRig) - an entity without status effects whose stunDamage stays 0 and buffer is 100, while the root bot accumulates stun. A runtime check confirmed this (broken variants bound to the proxy, working ones to the root). The fix walks the stun source up past entities without status effects to the root, mirroring the existing health-component walk. In play, all spawned Junkdog/JungleDog variants now bind to the root and their bar value matched the root stunDamage after AddStunDamage(30); base Junkdog, Bloodhound and base JungleDog unchanged. 19 captures, check-captures OK.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for certain singleplayer enemies, the stun bar UI/value does not visibly change as they take hits, yet after enough hits land the enemy does still become stunned. The stun bar appears broken/static even though the underlying stun accumulation is working.\n\nAffected enemies (singleplayer):\n1. All Junkdog variants EXCEPT base Junkdog and Bloodhound Junkdog (i.e. the bug affects every Junkdog variant other than those two, which work correctly).\n2. All Jungledog variants EXCEPT the normal/base Jungledog (i.e. every Jungledog variant other than the base one is affected).\n\nSince the base/default variants of each enemy type work correctly but their other variants do not, compare how the working variants (base Junkdog, Bloodhound Junkdog, base Jungledog) are configured/implemented versus the broken variants to find what differs \u2014 likely something in how the stun bar value/UI is wired up, initialized, or referenced for the non-base variants (e.g. a missing or incorrect reference/binding/override specific to those variant classes or their data/config), since the stun logic itself (accumulating hits and triggering stun) is functioning.\n\nInvestigate the enemy classes/configs/prefabs for these two enemy families, find the root cause of why the stun bar does not update for all variants except the two listed exceptions, and fix it so the stun bar visually/numerically updates correctly for every affected variant while preserving current correct behavior for base Junkdog, Bloodhound Junkdog, and base Jungledog, and without changing the actual stun-trigger logic/thresholds.\n\nDo not use /conversations or any other tool that gives access to previous fixes/changes made by other people in this repo \u2014 investigate and fix this independently using only the current state of the codebase.",
+  "commit_ref": "master",
+  "commit_sha": "1eeb8f03bfaf293d23d5e9458b96b8486e55ba39",
+  "work_branch": "Automations/ClaudeJuniorDev/7931ca02-1a3b-4de9-86fe-effcc8a825b1",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/69",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Before fix: Junkdog-Spiked/JungleDog-Spiked bar bound to RibCage EntityProxy, Junkdog Armored to PhysicsRig EntityProxy; bar stayed 0 while root stun rose",
+    "After fix: Junkdog, Bloodhound, Junkdog Spiked, Junkdog Armored, Turbo Junkdog, JungleDog, JungleDog Spiked, JungleDog Armored-Left all bind to root; bar max = root stunBufferSize (50/70)",
+    "After AddStunDamage(30), bar current value equals root stunDamage on every spawned bot; captures show the stun line partly filled on fixed variants like on base ones"
+  ],
+  "not_done": [
+    "Friendly, Pet, XMas, Turbo Spiked, Turbo Armored and JungleDog Armored Both not spawned individually (no/broken debug spawn action); they share the tested rig",
+    "Full stun trigger on patched variants not re-confirmed (that call failed silently); stun trigger code is untouched",
+    "MP PlayerHealthBar has the same lookup pattern - out of scope, not changed"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Jungledog Armored Both' (debug spawn action name, unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 4.05,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "iso-close-junkdog-spiked-stun30-90",
+      "caption": "Junkdog - Spiked (isolated) after 30 stun: stun line partly filled - bar now follows root stun (was static)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-junkdog-spiked-stun30-b",
+      "caption": "Junkdog - Spiked (isolated), second angle, stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "iso-close-junkdog-armored-stun30",
+      "caption": "Junkdog Armored (isolated, with neighbour): stun line partly filled like the base Junkdog"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "iso-close-jungledog-spiked-stun30",
+      "caption": "JungleDog - Spiked (isolated): stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "iso-close-jungledog-armoredleft-stun30",
+      "caption": "JungleDog Armored-Left (isolated): stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "iso-close-junkdog-base-stun30",
+      "caption": "Base Junkdog (isolated, regression): stun bar partly filled as before"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "iso-close-jungledog-base-stun30",
+      "caption": "Base JungleDog (isolated, regression): stun bar partly filled as before"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "scene-close-junkdog-spiked-stun30",
+      "caption": "Junkdog - Spiked in scene: stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "scene-close-junkdog-armored-stun30",
+      "caption": "Junkdog Armored in scene: stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "scene-close-jungledog-spiked-stun30",
+      "caption": "JungleDog - Spiked in scene: stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-close-jungledog-armoredleft-stun30",
+      "caption": "JungleDog Armored-Left in scene: stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-close-junkdog-base-stun30",
+      "caption": "Base Junkdog in scene (regression): stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "scene-close-bloodhound-stun30",
+      "caption": "Bloodhound in scene (regression): stun bar partly filled"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "scene-wide-junkdog-spiked-stun30",
+      "caption": "Wide: Junkdog - Spiked in the Quick Rampage arena with its bar"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "scene-wide-junkdog-armored-stun30",
+      "caption": "Wide: Junkdog Armored in the arena"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "scene-wide-jungledog-spiked-stun30",
+      "caption": "Wide: JungleDog - Spiked in the arena"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "scene-wide-jungledog-armoredleft-stun30",
+      "caption": "Wide: JungleDog Armored-Left in the arena"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "scene-wide-junkdog-base-stun30",
+      "caption": "Wide: base Junkdog in the arena (regression)"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "scene-wide-turbo-junkdog-stun30",
+      "caption": "Wide: Turbo Junkdog in the arena (bar bound to root, half-rate stun from turbo)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "8cfa787a-c8e5-4df2-abc4-99102d7199d7",
+  "session_job_result": "success",
+  "github_run_id": "37070622664",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37070622664",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1j40e3SdgD5NkBz-J_jXvKroh1gZLuHfP"
+}

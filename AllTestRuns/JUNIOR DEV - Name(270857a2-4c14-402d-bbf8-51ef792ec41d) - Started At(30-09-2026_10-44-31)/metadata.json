@@ -1,0 +1,41 @@
+{
+  "test_name": "270857a2-4c14-402d-bbf8-51ef792ec41d",
+  "timestamp": "30-09-2026_10-44-31",
+  "finished_at": "30-09-2026_11-13-54",
+  "duration_minutes": 29,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Root cause is not in the enemy data: no variant overrides stunBuffer or any stun field; all inherit stunBuffer from the base Junkdog (50) / JungleDog (70) entity. BotHealthBar bound its stun source with GetComponentInParent<IStunComponent>() from the Bot UI under RibCage, and at runtime JunkDogSpikes adds an EntityProxy on RibCage/Pelvis and ArmorEntity adds one on its armorProtectedRoots (PhysicsRig for the Armored variants). An EntityProxy is a GameEntity whose stunDamage is always 0, so the bar read the proxy while the root entity accumulated and triggered the stun. Bloodhound works because its armor root is Head, which is not an ancestor of RibCage. Fixed in BotHealthBar.Setup by binding _stunComponent to baseEntity (GameEntity.GetEntity skips proxies); compiles clean. Not verified in Play mode: the editor needed a full asset reimport (~24 min), which used up the 30-minute budget.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for certain singleplayer enemy bots, the stun bar UI does not visually update as the bot takes hits, yet after enough hits land the bot still becomes stunned. So the underlying stun accumulation logic works, but the stun bar display/feedback is broken for these specific enemies.\n\nAffected enemies:\n1. All \"junkdog\" variants EXCEPT the base junkdog and the bloodhound junkdog (i.e. base junkdog and bloodhound junkdog work correctly, all other junkdog variants are broken).\n2. All \"jungledog\" variants EXCEPT the normal base jungledog (i.e. base jungledog works correctly, all other jungledog variants are broken).\n\nSince the working variants (base junkdog, bloodhound junkdog, base jungledog) behave correctly and the broken variants are otherwise similar enemy types, compare their configuration/data assets to find what differs. Look at the enemy definition assets (yaml or similar data files) for these bots, particularly anything related to stun bar / stun threshold / hit reaction configuration \u2014 check whether the broken variants are missing a field that the working ones have, have an overridden/incorrect value, or fail to inherit a stat block from a base/parent definition that drives the stun bar UI hookup.\n\nInvestigate root cause first. Please report back what specifically differs between the working and broken enemy configs before making changes, then fix the broken variants' data so their stun bar visually updates on hits consistent with the working enemies, and verify in-game that hitting each of the previously-broken junkdog and jungledog variants updates the stun bar progressively rather than only triggering the stun after an invisible threshold.",
+  "commit_ref": "master",
+  "commit_sha": "b9551cf471dde4ab1bb23db7aa6ddfee723adeab",
+  "work_branch": "ClaudeJuniorDev/270857a2-4c14-402d-bbf8-51ef792ec41d",
+  "pr_url": null,
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Project compiles with the change (bridge compile, no compile errors)"
+  ],
+  "not_done": [
+    "In-game verification of each previously broken junkdog/jungledog variant (out of budget after the full reimport)",
+    "Plain Turbo Junkdog / Turbo JungleDog: these variants add no EntityProxy (only an EntityStatusSetter with alwaysTurbo, and turbo halves stun damage in AddStunDamage), so this fix may not cover them; needs a runtime check",
+    "Data-only fix as the task asked: not possible, because the proxies are created at runtime by ArmorEntity/JunkDogSpikes and no prefab field controls the stun bar binding"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "c5549f21-21dd-4f41-b79b-60b900b3ddf6",
+  "session_job_result": "success",
+  "github_run_id": "36703695133",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36703695133",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1wt-S7olId3IC7C3sLKppWYV-b8CRv-vd"
+}

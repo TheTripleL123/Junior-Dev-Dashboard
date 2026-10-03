@@ -1,0 +1,57 @@
+{
+  "test_name": "eba32088-0289-422f-b7f7-f23c79105695",
+  "timestamp": "29-09-2026_21-59-13",
+  "finished_at": "29-09-2026_22-17-40",
+  "duration_minutes": 18,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Confirmed live that BotHealthBar bound its stun bar to an EntityProxy (RibCage/PhysicsRig on Spiked/Armored junk/jungledogs) or a boss bubble (MantisBubble/UssamBubble), none of which accumulate stun, while the root entity did. BotHealthBar.Setup now falls back to the root entity when the resolved IStunComponent is a GameEntity without status effects. BombBotEntity no longer strips Damage.Type.Stun (hack/overheat/turbo resistance kept); bombot stun went from 0 to accumulating. Verified in play mode by spawning each type, applying stun-damage interactions every 0.25s and logging root stun vs. the stun bar HealthBarUI value: all affected types now track root stun, and base junkdog/bloodhound/base jungledog are unchanged. No pixel screenshot of the bars (victory screen covered the game view; target captures saw bars edge-on).",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Investigate and fix a bug: for a number of enemies, the stun bar UI does not visibly fill or change as the enemy takes stun-type damage, yet after enough qualifying hits the enemy does become stunned anyway. This is confirmed present on current master and was also present in build 12010, so it is not a recent regression.\n\nAffected enemies:\n1. All junkdogs except the base junkdog and the bloodhound junkdog\n2. All bombots\n3. All jungledogs except the normal base\n4. All bosses\n\nTwo separate root causes have already been identified by prior investigation and need to be verified live in the editor, then fixed:\n\n- Bombots: in BombBotEntity.ModifyIncomingInteraction (BombBotEntity.cs, around lines 71-79), Damage.Type.Stun is stripped from every incoming hit, so the stun bar/buffer can never fill from damage. Any stun bombots do get appears to come from a non-damage source (a hack/quirk) calling Stun() directly rather than through the normal stun-accumulation path. Confirm this at runtime and fix ModifyIncomingInteraction so stun-type damage is no longer stripped, restoring normal stun bar accumulation while preserving whatever behavior the stripping was originally meant to support (check git history/comments for intent before removing it outright).\n\n- Junkdogs/Jungledogs (Armored+Spiked variants) and bosses: this looks like a UI binding issue rather than a data/YAML issue. BotHealthBar.Setup binds the stun bar via GetComponentInParent<IStunComponent>(), which for these enemies resolves to the wrong component \u2014 an EntityProxy (e.g. Spiked dogs via JunkDogSpikes, Armored dogs via ArmorEntity proxies on PhysicsRig) or a bubble GameEntity (e.g. Mantis/Ussam) \u2014 neither of which carries the real status effects/stun accumulation. Because of this the bar reads stunDamage=0 from the wrong component while the actual root entity is the one accumulating stun damage and eventually triggering the stun. Confirm this live in the editor (attach to an affected enemy, watch which component GetComponentInParent<IStunComponent>() resolves to, verify the root entity's stun accumulation vs. what the bar reads), then fix BotHealthBar.Setup (and/or the proxy components' IStunComponent implementation) so it binds to the correct entity's stun state for these enemy types. Do not assume this is a per-prefab stunBuffer override \u2014 that has already been ruled out (Armored/Spiked junkdog/jungledog variants all inherit stunBuffer=50, same as base).\n\nVerify the base junkdog, bloodhound junkdog, and normal base jungledog are unaffected and remain so after the fix (they should already display stun bar changes correctly, since they don't go through the proxy/bubble indirection).\n\nDone means: for all listed affected enemy types, the stun bar visibly fills/updates as stun-type damage is taken, matching the enemy actually becoming stunned, verified live in the editor, with no regression to the already-working base junkdog, bloodhound junkdog, or base jungledog.",
+  "commit_ref": "master",
+  "commit_sha": "0a0e99335cbe0d5d11f7cd397f573eaffeccc6c2",
+  "work_branch": "ClaudeJuniorDev/eba32088-0289-422f-b7f7-f23c79105695",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/51",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs",
+    "Assets/Scripts/Combat/Entities/Bots/BombBot/BombBotEntity.cs"
+  ],
+  "verified": [
+    "Old GetComponentInParent<IStunComponent>() resolves to EntityProxy:RibCage / EntityProxy:PhysicsRig / MantisBubble / UssamBubble reading 0 stun while root accumulates",
+    "New binding is the root entity for Junkdog Armored, Junkdog - Spiked, JungleDog Armored, JungleDog - Spiked, Mantis, Ussam; stun bar value tracks root stunDamage",
+    "Junkdog - Spiked reached stunned=True with bar switching to stun-duration display",
+    "BomBot stunDamage accumulates (0 -> 20.1/100) and its bar tracks it after removing Stun stripping",
+    "Base Junkdog, Junkdog - Bloodhound, base JungleDog bind to root in both old and new code and their bars track stun"
+  ],
+  "not_done": [
+    "No visual (pixel) screenshot of the stun bars; evidence is the logged HealthBarUI value",
+    "Armored-Left/Right, Turbo variants, other bombot variants and Roach final bosses not individually spawned",
+    "Did not trace the non-damage stun source bombots used on master",
+    "Design confirmation that bombots should be stunnable by regular stun damage"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Combat NoFade",
+    "Combat/Sections/Empty",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "No spawns found for prewarming, this will cause hiccups",
+    "Damage will not resolve in anything. GOD does not know what to do here. Target entity was Gorilla Mech Source entity was JD_TEST Mantis",
+    "Pooled object was destroyed in pool BomBot. LEAK!"
+  ],
+  "fix_rounds": 0,
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "GitHub Actions 1000030186",
+  "session_id": "7242369a-4750-42d9-a7e5-cd567671782e",
+  "session_job_result": "success",
+  "github_run_id": "36636426949",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36636426949",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1WThCZcfPGfQhBbYms-3VGGNWv4JOchXv"
+}

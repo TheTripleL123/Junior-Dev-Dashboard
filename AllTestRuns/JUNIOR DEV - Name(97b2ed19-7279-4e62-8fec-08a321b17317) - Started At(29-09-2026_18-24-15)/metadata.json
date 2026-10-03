@@ -1,0 +1,43 @@
+{
+  "test_name": "97b2ed19-7279-4e62-8fec-08a321b17317",
+  "timestamp": "29-09-2026_18-24-15",
+  "finished_at": "29-09-2026_18-55-17",
+  "duration_minutes": 31,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Play-mode repro was not possible in the 30-minute budget. This machine had no Library/ folder, so Unity 6000.3.20f1 started a cold import (about 37.8k assets imported by +30m, still going), and the bridge never came up. Static source verification against master: (1) MechAddonDef.ApplyOn (MechAddonDef.cs:11-14) applies addedPowerLevels only when the host item is an ArmDef. TRUE. (2) GameEntity.ProcessModifyOutgoingInteraction (GameEntity.cs:3195-3218) runs ModifyOutgoingInteraction on every ancestor, including the entity itself. Arms are parented under the chassis (MP_PlayerMech.cs:1338), so cockpit addon behaviors do see hits from both arms. TRUE as a mechanism. (3) Arm addons can't be slotted on the cockpit. The .asset files, not items.json (an editor-only export from ItemDefEditorWindow), set the allowed slots. Overdrives, Megafrictor and Major Cabal have equipSlots=8 (Arm only); Phantom Limb and Triple Bus have equipSlots=2 (Cockpit). ItemDef.CanEquip (ItemDef.cs:922-926) enforces the slot on PlayerGameState.AddItem/SetItemEquipSlot (PlayerGameState.cs:454-459) and on Rampage drag-drop (MechUI.cs:1073). No cockpit-eligible item has a nonzero addedPowerLevels, so no current item takes the skipped-nerf path. Triple Bus and Phantom Limb applying arm bonuses is by design: CompoundItemDef/PhantomRerouter split sub-items onto ArmLeft/ArmRight. So the reported bug looks unreachable through the paths checked, but play mode has not confirmed it.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: RAMPAGE \u2014 arm addons (e.g. Overdrives, Mega Frictor, Major Cabal) can be equipped/swapped onto the body (cockpit) slot instead of an arm slot, and when this happens the addon's benefit is applied to BOTH arms while the usual drawback/nerf that normally applies when it's on an arm is skipped entirely. Some body addons have the opposite problem: they get an arm-only benefit when slotted on a busted/replacement arm (e.g. Phantom Limb, Triple Bus) even though they're body addons.\n\nThis has not yet been reproduced live \u2014 no Unity editor/Library/running process was available in the environment where it was investigated. Your task is to reproduce this in play mode using the Unity editor, confirm the behavior described above, and document exactly what you did and what you observed (steps, mech/addon loadout used, screenshots or logs if possible).\n\nSuspected root cause to verify while reproducing (from code inspection, unconfirmed against live behavior):\n- MechAddonDef.ApplyOn (MechAddonDef.cs, around line 11) only applies the PWR nerf when currentDefinition is an ArmDef \u2014 so when the addon ends up associated with something other than an arm, that nerf never fires.\n- GameEntity.ProcessModifyOutgoingInteraction (GameEntity.cs, around line 3186) runs an addon's CombatSetup behavior on all ancestor entities. Since the cockpit is an ancestor of both arm entities, an addon slotted on the cockpit ends up running its CombatSetup on both arms, granting the benefit twice while never hitting the ArmDef-gated nerf path.\n- items.json may still list arm-only addons (Overdrives, etc.) in a way that allows them to be slotted onto the body/cockpit \u2014 check the item/slot definitions for these addons.\n\nDone means: a confirmed, written repro of the double-benefit/no-nerf bug (or a note that it could not be reproduced along with what was tried), plus confirmation or correction of the suspected root cause in MechAddonDef.cs and GameEntity.cs against actual play-mode behavior. Do not fix the bug yet \u2014 this pass is specifically to get a reliable repro and verify root cause before a fix is attempted.",
+  "commit_ref": "master",
+  "commit_sha": "152aa5c3ccaef5f3fad727d66d1623a3b11eef7a",
+  "work_branch": null,
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Static only: MechAddonDef.ApplyOn applies PWR nerf only when the host is an ArmDef (MechAddonDef.cs:11-14)",
+    "Static only: ProcessModifyOutgoingInteraction walks this.Ancestors, which includes self; chassis is the parent of both arms",
+    "Static only: equipSlots on the addon assets: Overdrives/Megafrictor/Major Cabal = Arm(8), Phantom Limb/Triple Bus = Cockpit(2); ItemDef.CanEquip enforces the mask on AddItem/SetItemEquipSlot and MechUI drag-drop",
+    "Static only: items.json is an editor export, not read at runtime"
+  ],
+  "not_done": [
+    "Play-mode repro: Unity cold import (no Library/) did not finish within budget, bridge never responded",
+    "Runtime check of CanEquip(EquipSlot.Cockpit) for the 5 addons and of the right-arm PWR delta with Major Cabal equipped",
+    "Screenshots/console logs from play mode",
+    "Unverified: whether any path other than AddItem/SetItemEquipSlot/MechUI calls Item.SetEquipSlot directly and skips CanEquip (graph nodes, save-load, multiplayer sync)"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "GitHub Actions 1000030114",
+  "session_id": "ff7698f5-7405-4e2a-a6b8-ae718dcb99fb",
+  "session_job_result": "success",
+  "github_run_id": "36611651305",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36611651305",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/18qz7TB30EXB4Axl-jC8ceuEuiaS_Oa9K"
+}

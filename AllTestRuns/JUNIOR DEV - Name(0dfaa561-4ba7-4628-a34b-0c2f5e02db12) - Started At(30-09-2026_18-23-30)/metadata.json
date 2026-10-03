@@ -1,0 +1,53 @@
+{
+  "test_name": "0dfaa561-4ba7-4628-a34b-0c2f5e02db12",
+  "timestamp": "30-09-2026_18-23-30",
+  "finished_at": "30-09-2026_18-46-50",
+  "duration_minutes": 23,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Root cause: BotHealthBar used GetComponentInParent<IStunComponent>(), which bound the stun bar to runtime EntityProxy components that JunkDogSpikes and ArmorEntity add to bones above the bar (RibCage, Pelvis, PhysicsRig). Proxies never get stun damage, so the bar stayed at 0 while the real entity still got stunned. The bar now reads GameEntity.GetEntity(gameObject), which skips proxies. In Play mode, with Junkdog (control), Junkdog Armored, Junkdog - Spiked, Turbo Junkdog, JungleDog Armored and Turbo JungleDog - Spiked spawned, every bar bound to the root entity and its displayed stun value rose on each AddStunDamage hit (10/20/30/40 of 50, 50/60 of 70), matching the control. No screenshots: the empty combat section went to the Victory screen. The stun state was confirmed only by calling Stun() directly, because the stun interaction at the threshold was dropped in that post-combat state for the control as well.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for certain singleplayer enemy bots, the stun bar UI does not visibly update on each hit, but after enough hits land the enemy does eventually become stunned. So the stun mechanic itself is working, but the stun bar display/feedback is broken for these specific enemies.\n\nAffected enemies:\n1. All \"junkdog\" enemy variants EXCEPT the base junkdog and the bloodhound junkdog (those two work correctly).\n2. All \"jungledog\" enemy variants EXCEPT the normal/base jungledog (that one works correctly).\n\nSince the base/default variant of each enemy type works fine but the other variants of the same type don't, the bug is likely isolated to per-variant configuration rather than the core stun logic. Investigate the enemy data assets/config for these bots (likely YAML or similar data files defining each enemy variant) and compare a working variant (base junkdog, bloodhound junkdog, base jungledog) against a broken variant (any other junkdog or jungledog variant) to find what differs \u2014 e.g. a missing or overridden stun-bar/stun-threshold field, an incorrect reference to a stun bar UI element or stat block, or a bad inheritance/override from the base config.\n\nFind the root cause of why the stun bar fails to update for these variants while the underlying stun-trigger logic still works, and fix it so the stun bar visually updates on every hit for all affected junkdog and jungledog variants, matching the working base variants. Done means: hitting any junkdog variant or jungledog variant (including previously broken ones) shows the stun bar progressing with each hit, consistent with the enemy actually becoming stunned at the same point it does today.",
+  "commit_ref": "master",
+  "commit_sha": "2d02f127a64843206ae58e9e7df74044da77e54e",
+  "work_branch": "Automations/ClaudeJuniorDev/0dfaa561-4ba7-4628-a34b-0c2f5e02db12",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/54",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "BotHealthBar._stunComponent resolves to the root JunkDogEntity on Armored (6 EntityProxy) and Spiked (2 EntityProxy) Junkdog/JungleDog variants and on Turbo Junkdog",
+    "Stun bar HealthBarUI value rises on every AddStunDamage(10) hit for all spawned variants, identical to base Junkdog",
+    "Stun buffer resets at threshold (50 Junkdog, 70 JungleDog) for all variants",
+    "Stun() sets isStunned on all spawned variants"
+  ],
+  "not_done": [
+    "No screenshots of the bar (bots out of player view after the section ended in Victory; target capture was blank)",
+    "Stun triggered through a real combat hit not observed; the post-threshold stun interaction was dropped for all bots including the control in the test state",
+    "Plain Turbo variants had no proxy and bound correctly before the fix as well; no separate turbo-specific bar cause found (turbo halves stun intake per hit)",
+    "Friendly/Pet/XMas variants not tested"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Combat NoFade",
+    "Combat/Sections/Empty",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "No spawns found for prewarming, this will cause hiccups"
+  ],
+  "fix_rounds": 0,
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "cb9470d6-b2d0-4484-a411-37524dad2438",
+  "session_job_result": "success",
+  "github_run_id": "36757660392",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36757660392",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1HCxcVw4ArlpV0h3EvT9sxcI4liPbtNVT"
+}
