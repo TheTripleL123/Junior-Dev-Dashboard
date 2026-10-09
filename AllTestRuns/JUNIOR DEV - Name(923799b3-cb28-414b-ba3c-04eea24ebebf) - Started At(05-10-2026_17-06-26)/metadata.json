@@ -1,0 +1,113 @@
+{
+  "test_name": "Camera toolbox slow-down-time and pause do nothing - 923799b3-cb28-414b-ba3c-04eea24ebebf",
+  "timestamp": "05-10-2026_17-06-26",
+  "finished_at": "05-10-2026_17-36-16",
+  "duration_minutes": 30,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Whenever the player was in a singleplayer mech, the Camera Toolbox hit an error every frame before it could apply the time scale, so pause and slow motion did nothing, with or without a recording. The error came from the toolbox trying to show a quick-capture recording marker that only exists on the multiplayer mech OS. A July change removed the check that skipped the missing marker. I put the check back. In the Petting Zoo sandbox challenge with enemies, I then checked from code: the toolbox's Pause set the game time scale to 0 and a running Junkdog froze in place, the slow-motion knob at x0.5 gave a time scale of 0.5, and Pause also worked during a recording. The toolbox's own errors are gone from the console. In built-in sandbox scenarios such as challenges, the slow-motion knob is still greyed out on purpose; only debug builds, the gym and user-made scenarios allow it.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: camera toolbox 'slow down time' and 'pause' do not work\n\nDESCRIPTION:\ntested in the sandbox where it should work with enemies and also in rec time, both do not work\n\nREQUEST (from Amit):\ninvestigate and fix",
+  "commit_ref": "master",
+  "commit_sha": "66ec5fc71e7253f137ab102e25704f50ea79eb1b",
+  "work_branch": "Automations/ClaudeJuniorDev/923799b3-cb28-414b-ba3c-04eea24ebebf",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/82",
+  "files_changed": [
+    "Assets/Scripts/Animation/Cinematic/CinematicViewer.cs",
+    "Assets/Scripts/Combat/UI/MechOS.cs"
+  ],
+  "verified": [
+    "Toolbox Pause in the Petting Zoo sandbox challenge sets Time.timeScale to 0 and a moving Rabid Junkdog stays frozen for 3+ s of real time",
+    "Toolbox time-scale knob at x0.5 sets Time.timeScale to 0.5",
+    "Toolbox Pause while a recording is running sets Time.timeScale to 0",
+    "No MechOS/CinematicViewer UnassignedReferenceException in the console after the fix"
+  ],
+  "not_done": [
+    "VR controller input (hand-turned knob, button presses) not exercised - no headset; the same methods were called from code",
+    "The knob stays disabled by design in built-in sandbox scenarios (IsTimeScaleDisabled); not changed, needs a design decision if it should be allowed",
+    "IsTimeScaleDisabled throws when the sandbox has no active scenario (seen only after a machine-local scenario load failure); not changed"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Combat/Invulnerable/God",
+    "Game Modes/Misc/Sandbox (Play)",
+    "Advanced/Sandboxxer/Challenges/Petting Zoo"
+  ],
+  "console_errors": [
+    "Kinematic - Rigidbodies should never EVER EVER be scaled - even kinematic ones! (pre-existing, sandbox arena props)",
+    "LCK Game audio data copy failed (recording without audio device on the cloud machine)",
+    "Debug action 'Combat/Spawn/Junkdog' not found (wrong action name in a test call)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 4.01,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-frozen-by-toolbox-pause-90",
+      "caption": "Rabid Junkdog seen from the side, caught mid-stride with its legs spread while the toolbox Pause holds Time.timeScale at 0"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-frozen-by-toolbox-pause-0",
+      "caption": "The same paused Junkdog from the front, in the same mid-stride pose"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog-frozen-by-toolbox-pause-180",
+      "caption": "The same paused Junkdog from behind"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-frozen-by-toolbox-pause-270",
+      "caption": "The same paused Junkdog from its other side"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-wide-regression-check-toolbox-panel-paused-45",
+      "caption": "Camera Toolbox panel, seen from behind (mirrored), drawn with its knobs, toggles and preview; the panel itself renders while paused"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-wide-regression-check-toolbox-panel-paused-135",
+      "caption": "Camera Toolbox panel at a steep side angle, thin in the frame"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-toolbox-panel-paused-225",
+      "caption": "Camera Toolbox panel at a steep angle from the other side"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "non-isolated-wide-junkdog-frozen-by-toolbox-pause-45",
+      "caption": "Petting Zoo arena with the paused Junkdog in front, two more enemies and the challenge's spiked mech behind, all held still"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-junkdog-frozen-by-toolbox-pause-135",
+      "caption": "Arena around the paused Junkdog from another side"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-junkdog-frozen-by-toolbox-pause-225",
+      "caption": "Arena around the paused Junkdog from a third side"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "non-isolated-wide-junkdog-frozen-by-toolbox-pause-315",
+      "caption": "Arena around the paused Junkdog from a fourth side"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "dccb6c4b-745b-4761-8455-e8ebf2b78f16",
+  "session_job_result": "success",
+  "github_run_id": "37345369523",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37345369523",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1LO7AbTVLXfJLjipnbUfbXzGDT4D4vJhg"
+}

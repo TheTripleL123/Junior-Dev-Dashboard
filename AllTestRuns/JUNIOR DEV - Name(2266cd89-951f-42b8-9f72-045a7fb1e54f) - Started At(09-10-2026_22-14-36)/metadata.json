@@ -1,0 +1,88 @@
+{
+  "test_name": "Joint elevator to Rumble in front of paint shop - 2266cd89-951f-42b8-9f72-045a7fb1e54f",
+  "timestamp": "09-10-2026_22-14-36",
+  "finished_at": "09-10-2026_22-31-12",
+  "duration_minutes": 17,
+  "started_by": "Omer",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "The ride to Rumble could not be tested, because the server does not know the new elevator until Joint's elevator list is reseeded, and that is a step for a person. I built the elevator from the paint shop elevator and put it on the flat floor next to the paint shop doors. It has one green button that sends players to the deathmatch group (Block or Shithole Rumble). In the editor the Joint lobby loads fine with it, and it shows up as a ride-out-only elevator.",
+  "job_type": "feature",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: Add elevator to the Joint that takes you to Rumble - for playtest\n\nDESCRIPTION:\nWe need to put an elevator in a central point in the Joint. It doesn't need to look good, just to work. Put an elevator that's accessible in front of the paint shop entrance, make it have only one button that takes you to deathmatch. Use paint shop as base for elevator.\n\nFor the playtest on Sunday 2026-10-11, 18:00 Israel time (card \"Playtest!\").\n\nREQUEST (from Omer):\n@Big Sys Please do this task: an elevator in front of the paint shop entrance in the Joint, with one button that takes you to deathmatch (Rumble). Use the paint shop as the base. It doesn't need to look good, just to work. We need it for the playtest tomorrow, Sunday 2026-10-11, 18:00 Israel time. Thanks!\n\nEXTRA (from the card):\nNeeded for playtest on Sunday 2026-10-11, 18:00 Israel time (card \"Playtest!\").\n\nJOB TYPE:\nFEATURE REQUEST - asks to add a new elevator feature in the Joint that doesn't exist yet\n\nGAME MODE:\nMULTIPLAYER - the request says the elevator takes you to \"deathmatch (Rumble)\"",
+  "commit_ref": "master",
+  "commit_sha": "1b1a74904a46dd58b3df0d79f7998ab559db17f9",
+  "work_branch": "Automations/ClaudeJuniorDev/2266cd89-951f-42b8-9f72-045a7fb1e54f",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/87",
+  "files_changed": [
+    "Assets/__Multiplayer/_Levels/Joint/Joint.unity"
+  ],
+  "verified": [
+    "Rumble Elevator instance exists in Joint, built from Paintshop Elevator Variant, next to the paint shop doors (edit-time captures)",
+    "Exactly one active ElevatorButton on it, levelGroup=deathmatch; elevatorId unique; OnlySpawnOut=1; returnFromLevelGroup empty",
+    "Joint loads in Play mode on dev with the new elevator; mech spawns normally; mp/state lists Rumble_Elevator_be1c8351 out-only; no elevator errors"
+  ],
+  "not_done": [
+    "Riding the elevator into deathmatch not shown: Joint SceneElevatorDef not reseeded on any environment (shared DB write, human step)",
+    "No Rumble sign/label and no shadow rebake (card says it doesn't need to look good)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID.",
+    "[Recorder] InputFactory creation failure: failed to getRecordDriverInfo: ERR_INVALID_PARAM."
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.02,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "00-paintshop-area-before",
+      "caption": "Paint shop entrance (PIMP YOUR MECH doors) before the change"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "01-rumble-elevator-from-plaza",
+      "caption": "New Rumble elevator standing next to the paint shop doors, seen from the plaza"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "02-rumble-elevator-door",
+      "caption": "New elevator's door, facing up the strip in front of the paint shop"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "03-rumble-elevator-interior-button",
+      "caption": "Attempted interior shot from above the car; does not show the button (not useful)"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "04-rumble-elevator-side",
+      "caption": "Side view: the car sits on the floor, not clipping into the slope"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "05-play-rumble-elevator-unseeded",
+      "caption": "Play mode on dev: Joint loaded with the new elevator in place (not yet seeded, so no server row)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "00-paintshop-area-top",
+      "caption": ""
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "ac709e32-98cb-4e5c-a090-683087c39141",
+  "session_job_result": "success",
+  "github_run_id": "37997702744",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37997702744",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1qZJThk35eKzsgRecq6Y0FwNrDO8w_auw"
+}

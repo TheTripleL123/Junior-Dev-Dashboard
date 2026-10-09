@@ -1,0 +1,206 @@
+{
+  "test_name": "Stun bar not updating on most junkdog/jungledog variants - 0cbed03e-2aaa-48a5-81aa-e9c855e30563",
+  "timestamp": "05-10-2026_10-51-37",
+  "finished_at": "05-10-2026_11-14-13",
+  "duration_minutes": 23,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "The stun bar picks its stun source from the nearest game entity above it. On Spiked and Armored dogs, the spikes and armor add a proxy entity on the rib cage or physics rig, so the bar read the proxy's stun, which is always 0. The dog's real buffer kept filling and stunned it. Bloodhound's armor only covers the head, so its bar works. BotHealthBar now skips entities without status effects and reads the dog's own stun buffer, the same way the health bar already does. In the editor, every Spiked and Armored Junkdog and Jungledog bar now binds to the dog itself. The stun line fills after a punch and drains while stunned (seen on screen for Junkdog Spiked, Junkdog Armored and Jungledog Spiked; the rest confirmed by values). Base Junkdog and Bloodhound still work.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: some enemies' stun bar is broken - Consistency Test 2\n\nDESCRIPTION:\ntheir stun bar does not change, but after some hits they can get stunned, the singleplayer enemies are:\n\n1. all junkdogs except base junkdog and bloodhound junkdog\n2. all jungledogs except normal base\n\nREQUEST (from Amit):\ninvestigate and fix, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT LETS YOU SEE PREVIOUS CONVERSATIONS AND SOLUTIONS",
+  "commit_ref": "master",
+  "commit_sha": "cb136001353649b59f8b18173dd481b911d9f941",
+  "work_branch": "Automations/ClaudeJuniorDev/0cbed03e-2aaa-48a5-81aa-e9c855e30563",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/76",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Before the fix (runtime check): Spiked bar bound to EntityProxy@RibCage, Armored bar to EntityProxy@PhysicsRig, both 0/100, while the root dog had 4.4/50 after a punch",
+    "After the fix: BotHealthBar._stunComponent is the root JunkDogEntity on Junkdog Spiked, Armored, Armored Left, Jungledog Spiked, Jungledog Armored Left, base Junkdog, Bloodhound, base Jungledog and Turbo Junkdog",
+    "After a 20-damage blunt punch, the stun line fills from the right. Seen on screen for Junkdog Spiked (~1/3), Junkdog Armored (~1/3) and Jungledog Spiked (~1/4), matching root buffers of 17.9/50 and 17.1/70; the other variants have the same root values",
+    "80-damage punch: all stunned; Junkdog Armored shows the stun icon and a light-blue line, about two-thirds full and draining",
+    "Regression: base Junkdog and Bloodhound are still bound to the root and fill and stun (by value, plus small wide shots)"
+  ],
+  "not_done": [
+    "Turbo Spiked and Turbo Armored Junkdog and Jungledog were not spawned. They use the same spike/armor proxy path that the fix covers in BotHealthBar.Setup",
+    "Plain Turbo Junkdog, Friendly, Rabid and Jingle Ball have no spike or armor proxy. Turbo Junkdog was already bound to the root before the fix. Its stun fills at half rate (turbo) and decays at 30/s, so the line can look static, but it works. Turbo JungleDog could not be spawned: CombatDebug.InstantiateBot('Turbo JungleDog') returned null",
+    "Multiplayer bots also use BotHealthBar, but they were not tested"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "PhysicsRig: Does this happen? how did you get a ref to a proxy? probably should not be happening ... (raised by the QA inspection snippet calling isBot on a proxy through the bridge, not by game code)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 4.42,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-spiked-stun-filling-90",
+      "caption": "Junkdog Spiked alone, bar faced to camera: mint stun line filled about a third from the right (root 17.9/50) after one 20-damage punch - before the fix it stayed empty"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-armored-stun-filling-180",
+      "caption": "Junkdog Armored alone, bar faced to camera: mint stun line filled about a third from the right after one 20-damage punch"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-jungledog-spiked-stun-filling-180",
+      "caption": "Jungledog Spiked alone, bar faced to camera: mint stun line filled about a quarter from the right (root 17.1/70) after one 20-damage punch"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-armored-stunned-90",
+      "caption": "Junkdog Armored stunned: mint stun icon above the bar, stun line light blue and about two-thirds full, draining"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stun-filling-90",
+      "caption": "Regression: base Junkdog and Bloodhound, small in frame, both bars visible after the 20-damage punch (17.9/50 each); the stun line is too thin to read at this size"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-jungledog-armored-left-stun-filling-270",
+      "caption": "Jungledog Armored Left after a 20-damage punch (root 17.1/70); not reviewed one by one - framing in captures.log"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-jungledog-armored-left-stun-filling-315",
+      "caption": "Jungledog Armored Left after a 20-damage punch, second angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-jungledog-armored-left-stunned-180",
+      "caption": "Jungledog Armored Left stunned after an 80-damage punch; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-jungledog-spiked-stun-filling-225",
+      "caption": "Jungledog Spiked after a 20-damage punch, second angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-close-jungledog-spiked-stunned-0",
+      "caption": "Jungledog Spiked stunned after an 80-damage punch; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-close-junkdog-armored-left-stun-filling-90",
+      "caption": "Junkdog Armored Left after a 20-damage punch (root 17.9/50); not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-close-junkdog-armored-left-stun-filling-135",
+      "caption": "Junkdog Armored Left after a 20-damage punch, second angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-close-junkdog-armored-left-stunned-270",
+      "caption": "Junkdog Armored Left stunned after an 80-damage punch; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stun-filling-0",
+      "caption": "Regression: base Junkdog and Bloodhound after a 20-damage punch; Bloodhound partly blocked per captures.log; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stun-filling-270",
+      "caption": "Regression: base Junkdog and Bloodhound after a 20-damage punch, another angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stunned-0",
+      "caption": "Regression: base Junkdog and Bloodhound stunned after an 80-damage punch; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stunned-90",
+      "caption": "Regression: base Junkdog and Bloodhound stunned, another angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "isolated-wide-regression-check-junkdog-base-bloodhound-stunned-270",
+      "caption": "Regression: base Junkdog and Bloodhound stunned, third angle; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-stun-filling-45",
+      "caption": "Regression set (base Junkdog, Bloodhound, Junkdog Spiked) after a 20-damage punch; every position reported blocked (hidden= in captures.log)"
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-stun-filling-135",
+      "caption": "Regression set, 135 deg; reported blocked (hidden= in captures.log)"
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-stun-filling-225",
+      "caption": "Regression set, 225 deg; reported blocked (hidden= in captures.log)"
+    },
+    {
+      "file": "SCREENSHOT_22.webp",
+      "name": "non-isolated-wide-junkdogspiked110-stun-filling-45",
+      "caption": "Junkdog Spiked in the Rampage scene after the punch; reported blocked by scenery; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_23.webp",
+      "name": "non-isolated-wide-junkdogspiked110-stun-filling-225",
+      "caption": "Junkdog Spiked in the scene, 225 deg; reported blocked by scenery; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_24.webp",
+      "name": "non-isolated-wide-junkdogarmored111-stun-filling-45",
+      "caption": "Junkdog Armored in the scene after the punch, clear view; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_25.webp",
+      "name": "non-isolated-wide-junkdogarmored111-stun-filling-225",
+      "caption": "Junkdog Armored in the scene, 225 deg; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_26.webp",
+      "name": "non-isolated-wide-junkdogarmored111-stunned-135",
+      "caption": "Junkdog Armored in the scene while stunned; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_27.webp",
+      "name": "non-isolated-wide-jungledogspiked113-stun-filling-45",
+      "caption": "Jungledog Spiked in the scene after the punch; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_28.webp",
+      "name": "non-isolated-wide-jungledogspiked113-stun-filling-225",
+      "caption": "Jungledog Spiked in the scene, 225 deg; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_29.webp",
+      "name": "non-isolated-wide-jungledogspiked113-stunned-135",
+      "caption": "Jungledog Spiked in the scene while stunned; not reviewed one by one"
+    },
+    {
+      "file": "SCREENSHOT_30.webp",
+      "name": "non-isolated-wide-junkdogarmoredleft112-stunned-135",
+      "caption": "Junkdog Armored Left in the scene while stunned; not reviewed one by one"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "3859aa41-c58a-4919-aafc-b761317acd68",
+  "session_job_result": "success",
+  "github_run_id": "37298614150",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37298614150",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1RkgWsy33GZZLe_e4Klsx3wGB8LLoSidh"
+}

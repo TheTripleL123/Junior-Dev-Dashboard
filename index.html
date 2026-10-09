@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Junior Dev Automation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; max-width: 95%; margin: 0 auto; padding: 32px; padding-bottom: 100px; background: #0d1117; color: #e6edf3; font-size: 16px; }
+    h1 { margin-bottom: 6px; color: #f0f6fc; font-size: 1.8em; padding-bottom: 12px; border-bottom: 2px solid #30363d; }
+    .subtitle { color: #7d8590; margin-bottom: 20px; font-size: 1em; margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .subtitle a { color: #79c0ff; text-decoration: none; }
+    .subtitle a:hover { text-decoration: underline; }
+
+    .settings-btn { background: none; border: 1px solid #30363d; border-radius: 6px; padding: 4px 10px; color: #7d8590; cursor: pointer; font-size: 0.9em; }
+    .settings-btn:hover { color: #e6edf3; border-color: #58a6ff; }
+    .settings-btn.has-token { color: #56d364; border-color: #2ea04f; }
+    .token-panel { display: none; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px 18px; margin-bottom: 16px; }
+    .token-panel.visible { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .token-panel label { font-size: 0.8em; color: #7d8590; white-space: nowrap; }
+    .token-panel input { flex: 1; min-width: 200px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #e6edf3; font-size: 0.85em; font-family: monospace; }
+    .token-panel input:focus { border-color: #58a6ff; outline: none; }
+    .token-panel .token-save { padding: 8px 16px; background: #238636; border: 1px solid #2ea04f; border-radius: 6px; color: #fff; cursor: pointer; font-size: 0.85em; font-weight: 600; }
+    .token-panel .token-save:hover { background: #2ea04f; }
+    .token-panel .token-clear { padding: 8px 16px; background: #3d1215; border: 1px solid #f8514933; border-radius: 6px; color: #f85149; cursor: pointer; font-size: 0.85em; }
+    .token-panel .token-clear:hover { background: #5a1a1f; }
+    .token-hint { font-size: 0.75em; color: #484f58; width: 100%; margin-top: 4px; }
+
+    .controls { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .control-group label { font-size: 0.75em; color: #7d8590; text-transform: uppercase; letter-spacing: 0.05em; }
+    .control-group input, .control-group select { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #e6edf3; font-size: 0.9em; outline: none; }
+    .control-group input:focus, .control-group select:focus { border-color: #58a6ff; }
+    .control-group input::placeholder { color: #484f58; }
+    .sort-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+    .sort-group label { font-size: 0.75em; color: #7d8590; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sort-row { display: flex; gap: 6px; }
+    .sort-row select { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; color: #e6edf3; font-size: 0.9em; outline: none; flex: 1; }
+    .sort-row select:focus { border-color: #58a6ff; }
+    .sort-row button { background: #1c2333; border: 1px solid #3b4c6b; border-radius: 6px; padding: 8px 12px; color: #79c0ff; cursor: pointer; font-size: 0.9em; white-space: nowrap; }
+    .sort-row button:hover { background: #2d3a54; }
+    .show-archived-group { display: flex; align-items: center; gap: 8px; min-width: 150px; padding-bottom: 2px; }
+    .show-archived-group label { font-size: 0.85em; color: #7d8590; cursor: pointer; user-select: none; }
+    .show-archived-group input { accent-color: #58a6ff; cursor: pointer; width: 16px; height: 16px; }
+
+    .status-counts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .count-chip { font-size: 0.85em; padding: 4px 12px; border-radius: 14px; border: 1px solid #30363d; background: #161b22; color: #7d8590; cursor: pointer; user-select: none; }
+    .count-chip span { font-weight: 700; margin-left: 4px; }
+    .count-chip.active { border-color: #58a6ff; color: #e6edf3; }
+
+    .run { background: #161b22; border: 1px solid #30363d; border-left-width: 4px; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 14px; flex-wrap: wrap; }
+    .run.archived { opacity: 0.5; border-style: dashed; }
+    .run-left { flex: 1; min-width: 320px; }
+    .run-title { font-weight: 600; font-size: 1.05em; color: #f0f6fc; margin-bottom: 6px; word-break: break-word; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .run-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+    .meta-tag { font-size: 0.85em; padding: 3px 9px; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #7d8590; }
+    .meta-tag span { color: #e6edf3; font-weight: 500; }
+    .meta-tag.user-tag span { color: #d2a8ff; }
+    .meta-tag.branch-tag span { color: #79c0ff; }
+    .meta-tag.commit-tag span { font-family: monospace; color: #79c0ff; }
+    .meta-stack { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+
+    .status-badge { font-size: 0.8em; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid; letter-spacing: 0.03em; }
+    .st-pass { --st: #3fb950; }
+    .st-fail { --st: #f85149; }
+    .st-inconclusive { --st: #d29922; }
+    .st-aborted, .st-cancelled { --st: #8b949e; }
+    .st-no_result { --st: #db6d28; }
+    .run.st-any { border-left-color: var(--st); }
+    .status-badge { color: var(--st); border-color: var(--st); background: color-mix(in srgb, var(--st) 12%, transparent); }
+
+    .reason { font-size: 0.92em; line-height: 1.5; color: #c9d1d9; background: #0d1117; border: 1px solid #30363d; border-left: 3px solid var(--st); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; white-space: pre-wrap; word-break: break-word; }
+    .reason-label { font-size: 0.72em; color: #7d8590; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+
+    details { margin-bottom: 6px; font-size: 0.88em; }
+    details summary { cursor: pointer; color: #7d8590; user-select: none; }
+    details summary:hover { color: #e6edf3; }
+    details summary .n { color: #e6edf3; font-weight: 600; }
+    details.errors summary .n { color: #f85149; }
+    details.not-done summary .n { color: #d29922; }
+    details .detail-body { margin: 6px 0 4px 16px; color: #c9d1d9; line-height: 1.5; }
+    details ul { margin-left: 18px; }
+    details li { margin-bottom: 2px; word-break: break-word; }
+    details pre { white-space: pre-wrap; word-break: break-word; font-family: inherit; }
+    details code { font-family: monospace; font-size: 0.95em; color: #79c0ff; }
+
+    .files { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .file-link { display: inline-block; padding: 5px 11px; background: #1c2333; border: 1px solid #3b4c6b; border-radius: 5px; color: #79c0ff; text-decoration: none; font-size: 0.85em; cursor: pointer; }
+    .file-link:hover { background: #2d3a54; }
+    .file-link.drive { background: #122117; border-color: #2ea04f; color: #56d364; }
+    .file-link.drive:hover { background: #1a3326; }
+    .file-link.logs { background: #1a1525; border-color: #7c3aed; color: #c4b5fd; }
+    .file-link.logs:hover { background: #2a1f3d; }
+    .file-link.pr { background: #1f1a0e; border-color: #9e6a03; color: #e3b341; }
+    .file-link.pr:hover { background: #2e2512; }
+
+    .run-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; max-width: 100%; }
+    .screenshots-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 620px; }
+    .screenshot-slot { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 190px; }
+    .screenshot-label { font-size: 0.72em; color: #7d8590; text-align: center; line-height: 1.3; max-height: 2.6em; overflow: hidden; word-break: break-word; }
+    .thumb-container { width: 190px; height: 107px; border-radius: 5px; overflow: hidden; cursor: pointer; border: 1px solid #30363d; }
+    .thumb-container img { width: 100%; height: 100%; object-fit: cover; }
+    .no-shots { font-size: 0.8em; color: #484f58; font-style: italic; }
+
+    .archive-btn { padding: 7px 16px; border-radius: 5px; border: 1px solid #30363d; cursor: pointer; font-size: 0.9em; background: #161b22; color: #7d8590; transition: all 0.15s; }
+    .archive-btn:hover { background: #3d1215; border-color: #f8514933; color: #f85149; }
+    .archive-btn.unarchive { background: #0d2818; border-color: #2ea04f33; color: #56d364; }
+    .archive-btn.unarchive:hover { background: #122117; border-color: #2ea04f; }
+    .archived-badge { font-size: 0.75em; padding: 2px 8px; background: #3d1215; border: 1px solid #f8514933; border-radius: 4px; color: #f85149; }
+
+    .loading { color: #7d8590; padding: 40px 0; text-align: center; font-size: 1em; }
+    .error { color: #f85149; padding: 16px; background: #2d1215; border: 1px solid #f8514933; border-radius: 8px; font-size: 0.9em; }
+    .empty { color: #7d8590; padding: 30px 0; text-align: center; font-style: italic; }
+
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; flex-direction: column; justify-content: center; align-items: center; gap: 12px; cursor: pointer; }
+    .overlay.active { display: flex; }
+    .overlay img { max-width: 90%; max-height: 82%; border-radius: 8px; cursor: default; }
+    .overlay-caption { color: #e6edf3; max-width: 80%; text-align: center; font-size: 0.95em; line-height: 1.4; cursor: default; }
+    .overlay-close { position: fixed; top: 20px; right: 30px; color: #fff; font-size: 2em; cursor: pointer; z-index: 1001; }
+
+    .confirm-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center; }
+    .confirm-overlay.active { display: flex; }
+    .confirm-box { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 28px 32px; max-width: 450px; width: 90%; text-align: center; }
+    .confirm-box h3 { color: #f0f6fc; margin-bottom: 12px; font-size: 1.2em; }
+    .confirm-box p { color: #7d8590; margin-bottom: 20px; font-size: 0.9em; line-height: 1.5; }
+    .confirm-box .confirm-name { color: #e6edf3; font-weight: 600; word-break: break-word; }
+    .confirm-buttons { display: flex; gap: 10px; justify-content: center; }
+    .confirm-buttons button { padding: 10px 24px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.9em; font-weight: 600; }
+    .confirm-cancel { background: #1c2333; color: #79c0ff; border: 1px solid #3b4c6b !important; }
+    .confirm-cancel:hover { background: #2d3a54; }
+    .confirm-yes { background: #da3633; color: #fff; }
+    .confirm-yes:hover { background: #f85149; }
+    .confirm-yes.unarchive-confirm { background: #238636; }
+    .confirm-yes.unarchive-confirm:hover { background: #2ea04f; }
+
+    @media (max-width: 700px) {
+      body { padding: 16px; max-width: 100%; }
+      .run { flex-direction: column; }
+      .run-left { min-width: 0; }
+      .run-right { align-items: flex-start; }
+      .screenshots-row { justify-content: flex-start; }
+      .controls { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Junior Dev Automation</h1>
+  <div class="subtitle">
+    <span>Junior Dev session results &mdash; <a href="https://drive.google.com/drive/u/5/folders/1Ckhix2o8tbz3VA6i25UQ1jf7JKx5bkQD" target="_blank">&#128194; Google Drive Folder</a></span>
+    <button class="settings-btn" id="settingsBtn" onclick="toggleTokenPanel()" title="GitHub token settings">&#9881; Token</button>
+  </div>
+
+  <div class="token-panel" id="tokenPanel">
+    <label>GitHub PAT:</label>
+    <input type="password" id="tokenInput" placeholder="ghp_... or github_pat_...">
+    <button class="token-save" onclick="saveToken()">Save</button>
+    <button class="token-clear" onclick="clearToken()">Clear</button>
+    <div class="token-hint">A GitHub Personal Access Token with repo scope is required to archive/unarchive runs. Stored locally in your browser only.</div>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>Search by ID</label>
+      <input type="text" id="searchName" placeholder="e.g. c679d9f3" oninput="applyFilters()">
+    </div>
+    <div class="control-group">
+      <label>Search by User</label>
+      <input type="text" id="searchUser" placeholder="e.g. Amit" oninput="applyFilters()">
+    </div>
+    <div class="control-group">
+      <label>Search by Date</label>
+      <input type="text" id="searchTime" placeholder="e.g. 28-09-2026" oninput="applyFilters()">
+    </div>
+    <div class="control-group">
+      <label>Search in task / reason</label>
+      <input type="text" id="searchText" placeholder="e.g. vendor" oninput="applyFilters()">
+    </div>
+    <div class="sort-group">
+      <label>Sort by</label>
+      <div class="sort-row">
+        <select id="sortBy" onchange="applyFilters()">
+          <option value="timestamp">Date</option>
+          <option value="test_name">ID</option>
+          <option value="started_by">User</option>
+          <option value="duration_minutes">Duration</option>
+        </select>
+        <button id="sortDir" onclick="toggleSort()">&#8595; Newest</button>
+      </div>
+    </div>
+    <div class="show-archived-group">
+      <input type="checkbox" id="showArchived" onchange="applyFilters()">
+      <label for="showArchived">Show archived</label>
+    </div>
+  </div>
+
+  <div class="status-counts" id="statusCounts"></div>
+
+  <div id="content"><p class="loading">Loading...</p></div>
+
+  <div class="overlay" id="overlay" onclick="closePopup()">
+    <span class="overlay-close" onclick="closePopup()">&times;</span>
+    <img id="popup-img" src="" alt="Screenshot" onclick="event.stopPropagation()">
+    <div class="overlay-caption" id="popup-caption" onclick="event.stopPropagation()"></div>
+  </div>
+
+  <div class="confirm-overlay" id="confirmOverlay" onclick="closeConfirm()">
+    <div class="confirm-box" onclick="event.stopPropagation()">
+      <h3 id="confirmTitle">Archive this run?</h3>
+      <p id="confirmBody"></p>
+      <div class="confirm-buttons">
+        <button class="confirm-cancel" onclick="closeConfirm()">Cancel</button>
+        <button class="confirm-yes" id="confirmYes" onclick="confirmArchiveAction()">Archive</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const REPO_OWNER = "TheTripleL123";
+    const REPO_NAME = "Junior-Dev-Dashboard";
+    const BRANCH = "main";
+
+    const API_BASE = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents`;
+    const RAW = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}`;
+    const TOKEN_KEY = "github_junior_dev_token";
+
+    // The session's own verdicts, plus the two the publisher records when there is none.
+    const STATUS = {
+      pass:         { label: "Successful" },
+      fail:         { label: "Failed" },
+      inconclusive: { label: "Inconclusive" },
+      aborted:      { label: "Aborted" },
+      cancelled:    { label: "Cancelled" },
+      no_result:    { label: "No result" },
+    };
+
+    // The Claude CLI's result subtype - how the session process ended.
+    const SESSION_END = {
+      success:                "Completed",
+      error_max_budget_usd:   "Budget cap hit",
+      error_max_turns:        "Turn limit hit",
+      error_during_execution: "Crashed",
+    };
+
+    let allRuns = [];
+    let sortAscending = false;
+    let statusFilter = null;
+    let pendingArchiveFolder = null;
+    let pendingArchiveAction = null;
+
+    function statusKey(run) { return STATUS[run.result] ? run.result : "no_result"; }
+    function statusLabel(run) {
+      const label = STATUS[statusKey(run)].label;
+      // Recovered from the progress journal: the session was killed before reporting.
+      return run.partial ? `${label} (cut off)` : label;
+    }
+
+    // ---- Token ----
+    function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
+    function toggleTokenPanel() {
+      const panel = document.getElementById("tokenPanel");
+      panel.classList.toggle("visible");
+      if (panel.classList.contains("visible")) document.getElementById("tokenInput").value = getToken();
+    }
+    function saveToken() {
+      const token = document.getElementById("tokenInput").value.trim();
+      if (token) { localStorage.setItem(TOKEN_KEY, token); updateSettingsBtn(); toggleTokenPanel(); }
+    }
+    function clearToken() {
+      localStorage.removeItem(TOKEN_KEY);
+      document.getElementById("tokenInput").value = "";
+      updateSettingsBtn();
+    }
+    function updateSettingsBtn() {
+      const btn = document.getElementById("settingsBtn");
+      const has = !!getToken();
+      btn.classList.toggle("has-token", has);
+      btn.innerHTML = has ? "&#9881; Token &#10003;" : "&#9881; Token";
+    }
+
+    // ---- Popup ----
+    function openPopup(url, caption) {
+      document.getElementById("popup-img").src = url;
+      document.getElementById("popup-caption").textContent = caption || "";
+      document.getElementById("overlay").classList.add("active");
+    }
+    function closePopup() {
+      document.getElementById("overlay").classList.remove("active");
+      document.getElementById("popup-img").src = "";
+    }
+    document.addEventListener("keydown", e => { if (e.key === "Escape") { closePopup(); closeConfirm(); } });
+
+    function forceDownload(url, filename) {
+      fetch(url).then(r => r.blob()).then(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }).catch(err => alert("Download failed: " + err.message));
+    }
+
+    // ---- Filters ----
+    function toggleSort() { sortAscending = !sortAscending; applyFilters(); }
+    function updateSortLabel() {
+      const btn = document.getElementById("sortDir");
+      const sortBy = document.getElementById("sortBy").value;
+      if (sortBy === "timestamp") btn.textContent = sortAscending ? "\u2191 Oldest" : "\u2193 Newest";
+      else if (sortBy === "duration_minutes") btn.textContent = sortAscending ? "\u2191 Shortest" : "\u2193 Longest";
+      else btn.textContent = sortAscending ? "\u2191 A\u2192Z" : "\u2193 Z\u2192A";
+    }
+    function setStatusFilter(key) {
+      statusFilter = statusFilter === key ? null : key;
+      applyFilters();
+    }
+
+    function parseTimestamp(s) {
+      if (!s || s === "-") return null;
+      const m = String(s).match(/(\d{1,2})-(\d{1,2})-(\d{2,4})(?:[ T_](\d{1,2})[:.-](\d{1,2})(?:[:.-](\d{1,2}))?)?/);
+      if (!m) return null;
+      let year = parseInt(m[3], 10);
+      if (year < 100) year += 2000;
+      // Stamps are written in UTC.
+      const t = Date.UTC(year, parseInt(m[2], 10) - 1, parseInt(m[1], 10),
+                         parseInt(m[4] || "0", 10), parseInt(m[5] || "0", 10), parseInt(m[6] || "0", 10));
+      return isNaN(t) ? null : t;
+    }
+    function localTime(stamp) {
+      const t = parseTimestamp(stamp);
+      if (t === null) return stamp || "-";
+      const d = new Date(t);
+      const pad = n => String(n).padStart(2, "0");
+      return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function applyFilters() {
+      updateSortLabel();
+      const nameQ = document.getElementById("searchName").value.toLowerCase();
+      const userQ = document.getElementById("searchUser").value.toLowerCase();
+      const timeQ = document.getElementById("searchTime").value.toLowerCase();
+      const textQ = document.getElementById("searchText").value.toLowerCase();
+      const sortBy = document.getElementById("sortBy").value;
+      const showArchived = document.getElementById("showArchived").checked;
+
+      const visible = allRuns.filter(r => {
+        if (!showArchived && r.isArchived) return false;
+        if (nameQ && !r.test_name.toLowerCase().includes(nameQ)) return false;
+        if (userQ && !(r.started_by || "").toLowerCase().includes(userQ)) return false;
+        if (timeQ && !(r.timestamp.toLowerCase().includes(timeQ) || localTime(r.timestamp).includes(timeQ))) return false;
+        if (textQ && !`${r.instructions || ""}\n${r.summary || ""}`.toLowerCase().includes(textQ)) return false;
+        return true;
+      });
+      renderCounts(visible);
+
+      const filtered = statusFilter ? visible.filter(r => statusKey(r) === statusFilter) : visible;
+      filtered.sort((a, b) => {
+        let valA, valB;
+        if (sortBy === "timestamp") {
+          valA = parseTimestamp(a.timestamp); valB = parseTimestamp(b.timestamp);
+          if (valA === null && valB !== null) return 1;
+          if (valB === null && valA !== null) return -1;
+        } else if (sortBy === "duration_minutes") {
+          valA = a.duration_minutes ?? -1; valB = b.duration_minutes ?? -1;
+        } else {
+          valA = (a[sortBy] || "").toLowerCase(); valB = (b[sortBy] || "").toLowerCase();
+        }
+        if (valA < valB) return sortAscending ? -1 : 1;
+        if (valA > valB) return sortAscending ? 1 : -1;
+        return 0;
+      });
+      renderRuns(filtered);
+    }
+
+    function renderCounts(runs) {
+      const counts = {};
+      for (const r of runs) counts[statusKey(r)] = (counts[statusKey(r)] || 0) + 1;
+      let html = "";
+      for (const key of Object.keys(STATUS)) {
+        if (!counts[key]) continue;
+        const active = statusFilter === key ? " active" : "";
+        html += `<span class="count-chip st-${key}${active}" style="color:var(--st)" onclick="setStatusFilter('${key}')">${STATUS[key].label}<span>${counts[key]}</span></span>`;
+      }
+      document.getElementById("statusCounts").innerHTML = html;
+    }
+
+    // ---- Rendering ----
+    function listDetails(title, items, cls, asCode) {
+      if (!items || items.length === 0) return "";
+      const li = items.map(i => `<li>${asCode ? `<code>${esc(i)}</code>` : esc(i)}</li>`).join("");
+      return `<details class="${cls || ""}"><summary>${esc(title)} <span class="n">${items.length}</span></summary><div class="detail-body"><ul>${li}</ul></div></details>`;
+    }
+
+    function renderRuns(runs) {
+      const container = document.getElementById("content");
+      if (runs.length === 0) { container.innerHTML = '<p class="empty">No matching runs found.</p>'; return; }
+
+      let html = "";
+      for (const r of runs) {
+        const key = statusKey(r);
+        const base = `${RAW}/AllTestRuns/${encodeURIComponent(r.folder_name)}`;
+        html += `<div class="run st-any st-${key}${r.isArchived ? " archived" : ""}">`;
+
+        html += `<div class="run-left">`;
+        html += `<div class="run-title"><span class="status-badge">${esc(statusLabel(r))}</span>${esc(r.test_name)}`;
+        if (r.isArchived) html += ` <span class="archived-badge">Archived</span>`;
+        html += `</div>`;
+
+        html += `<div class="run-meta">`;
+        if (r.started_by && r.started_by !== "unknown") html += `<div class="meta-tag user-tag">User: <span>${esc(r.started_by)}</span></div>`;
+        html += `<div class="meta-tag" title="${escAttr(r.timestamp + " UTC")}">Started: <span>${esc(localTime(r.timestamp))}</span></div>`;
+        if (r.duration_minutes != null) html += `<div class="meta-tag">Duration: <span>${esc(String(r.duration_minutes))} min</span></div>`;
+        if (r.runner_name) html += `<div class="meta-tag">Machine: <span>${esc(r.runner_name)}</span></div>`;
+        if (r.fix_rounds != null) html += `<div class="meta-tag" title="Fix rounds after a failed verification (at most 1)">Fix rounds: <span>${esc(String(r.fix_rounds))}</span></div>`;
+        if (r.session_end) html += `<div class="meta-tag" title="How the Claude session ended (CLI result subtype)">Session end: <span>${esc(SESSION_END[r.session_end] || r.session_end)}</span></div>`;
+        if (r.agent_cost_usd != null) html += `<div class="meta-tag" title="Claude Code's estimate from token usage, not the billed amount">Agent cost: <span>$${esc(Number(r.agent_cost_usd).toFixed(2))}</span></div>`;
+        const commitFull = r.commit_sha || "";
+        html += `<div class="meta-stack">`;
+        html += `<div class="meta-tag branch-tag">From: <span>${esc(r.commit_ref || "")}</span></div>`;
+        if (commitFull) html += `<div class="meta-tag commit-tag" title="${escAttr(commitFull)}">Commit: <span>${esc(commitFull.substring(0, 10))}</span></div>`;
+        html += `</div>`;
+        if (r.work_branch) html += `<div class="meta-tag branch-tag">Work branch: <span>${esc(r.work_branch)}</span></div>`;
+        html += `</div>`;
+
+        if (r.summary) {
+          let label = "Reason";
+          if (r.abort_reason) label += ` \u2014 ${r.abort_reason}`;
+          if (r.failure_kind) label += ` \u2014 ${r.failure_kind}`;
+          html += `<div class="reason"><div class="reason-label">${esc(label)}</div>${esc(r.summary)}</div>`;
+        }
+
+        if (r.instructions) {
+          html += `<details><summary>Task</summary><div class="detail-body"><pre>${esc(r.instructions)}</pre></div></details>`;
+        }
+        html += listDetails("Verified", r.verified);
+        html += listDetails("Not done", r.not_done, "not-done");
+        html += listDetails("Console errors", r.console_errors, "errors");
+        html += listDetails("Files changed", r.files_changed, "", true);
+        html += listDetails("Debug configs", r.configs, "", true);
+
+        html += `<div class="files">`;
+        if (r.pr_url) html += `<a class="file-link pr" href="${escAttr(r.pr_url)}" target="_blank">&#128256; Pull Request</a>`;
+        if (r.run_url) html += `<a class="file-link" href="${escAttr(r.run_url)}" target="_blank">&#9881; Workflow Run</a>`;
+        if (r.drive_link) html += `<a class="file-link drive" href="${escAttr(r.drive_link)}" target="_blank">&#128194; Drive Folder</a>`;
+        const logs = r.files.find(f => f === "Session Logs.zip");
+        if (logs) html += `<a class="file-link logs" href="#" onclick="forceDownload('${escAttr(`${base}/${encodeURIComponent(logs)}`)}', '${escAttr(`Session_Logs_${r.test_name}.zip`)}'); return false;">&#128220; Session Logs</a>`;
+        html += `</div>`;
+        html += `</div>`;
+
+        html += `<div class="run-right">`;
+        html += r.isArchived
+          ? `<button class="archive-btn unarchive" onclick="promptArchive('${escAttr(r.folder_name)}', 'unarchive')">Unarchive</button>`
+          : `<button class="archive-btn" onclick="promptArchive('${escAttr(r.folder_name)}', 'archive')">Archive</button>`;
+        const shots = (r.screenshots || []).filter(s => r.files.includes(s.file));
+        if (shots.length > 0) {
+          html += `<div class="screenshots-row">`;
+          for (const s of shots) {
+            const url = `${base}/${encodeURIComponent(s.file)}`;
+            const caption = s.caption || s.name || s.file;
+            html += `<div class="screenshot-slot" title="${escAttr(caption)}">`;
+            html += `<div class="thumb-container" onclick="openPopup('${escAttr(url)}', '${escAttr(caption)}')"><img src="${escAttr(url)}" alt="${escAttr(caption)}" loading="lazy"></div>`;
+            html += `<span class="screenshot-label">${esc(s.caption || s.name || "")}</span>`;
+            html += `</div>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<span class="no-shots">No screenshots</span>`;
+        }
+        html += `</div>`;
+
+        html += `</div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    // ---- Archive ----
+    function promptArchive(folderName, action) {
+      if (!getToken()) {
+        alert("Please set a GitHub token first (click the Token button at the top) to archive/unarchive runs.");
+        toggleTokenPanel();
+        return;
+      }
+      pendingArchiveFolder = folderName;
+      pendingArchiveAction = action;
+      const archiving = action === "archive";
+      document.getElementById("confirmTitle").textContent = archiving ? "Archive this run?" : "Unarchive this run?";
+      document.getElementById("confirmBody").innerHTML =
+        (archiving ? 'This will hide the run from the default view. You can unarchive it later by enabling "Show archived".'
+                   : "This will restore the run to the default view.") +
+        `<br><br><span class="confirm-name">${esc(folderName)}</span>`;
+      const yes = document.getElementById("confirmYes");
+      yes.textContent = archiving ? "Archive" : "Unarchive";
+      yes.className = archiving ? "confirm-yes" : "confirm-yes unarchive-confirm";
+      document.getElementById("confirmOverlay").classList.add("active");
+    }
+    function closeConfirm() {
+      document.getElementById("confirmOverlay").classList.remove("active");
+      pendingArchiveFolder = null;
+      pendingArchiveAction = null;
+    }
+    async function confirmArchiveAction() {
+      if (!pendingArchiveFolder || !pendingArchiveAction) return;
+      const folderName = pendingArchiveFolder;
+      const archiving = pendingArchiveAction === "archive";
+      closeConfirm();
+      const headers = { "Authorization": `Bearer ${getToken()}`, "Accept": "application/vnd.github+json" };
+      const repoPath = `AllTestRuns/${folderName}/metadata.json`;
+      try {
+        const getRes = await fetch(`${API_BASE}/${encodeURI(repoPath)}?ref=${BRANCH}`, { headers });
+        if (!getRes.ok) throw new Error(`Failed to fetch metadata (${getRes.status})`);
+        const fileData = await getRes.json();
+        const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+        content.isArchived = archiving;
+        const putRes = await fetch(`${API_BASE}/${encodeURI(repoPath)}`, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({
+            message: `${archiving ? "Archive" : "Unarchive"} ${folderName}`,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+            sha: fileData.sha,
+            branch: BRANCH,
+          }),
+        });
+        if (!putRes.ok) throw new Error(`GitHub API error (${putRes.status}): ${await putRes.text()}`);
+        const run = allRuns.find(r => r.folder_name === folderName);
+        if (run) run.isArchived = archiving;
+        applyFilters();
+      } catch (err) {
+        alert(`Failed to ${archiving ? "archive" : "unarchive"}: ${err.message}`);
+      }
+    }
+
+    function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+    function escAttr(s) { return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, " "); }
+
+    // ---- Load ----
+    async function load() {
+      const container = document.getElementById("content");
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/git/trees/${BRANCH}?recursive=1`);
+        if (res.status === 403) {
+          const reset = res.headers.get("X-RateLimit-Reset");
+          const mins = reset ? Math.ceil((parseInt(reset) * 1000 - Date.now()) / 60000) : null;
+          container.innerHTML = `<div class="error">GitHub API rate limit reached (60 requests/hour for unauthenticated users).${mins ? ` Resets in ~${mins} minute${mins !== 1 ? "s" : ""}.` : ""} Try refreshing later.</div>`;
+          return;
+        }
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+
+        const folderFiles = {};
+        for (const item of (await res.json()).tree || []) {
+          if (item.type !== "blob" || !item.path.startsWith("AllTestRuns/")) continue;
+          const parts = item.path.slice("AllTestRuns/".length).split("/");
+          if (parts.length !== 2) continue;
+          (folderFiles[parts[0]] = folderFiles[parts[0]] || []).push(parts[1]);
+        }
+
+        const folders = Object.keys(folderFiles).filter(f => folderFiles[f].includes("metadata.json"));
+        if (folders.length === 0) { container.innerHTML = '<p class="empty">No runs yet.</p>'; return; }
+
+        allRuns = (await Promise.all(folders.map(async folder => {
+          try {
+            const metaRes = await fetch(`${RAW}/AllTestRuns/${encodeURIComponent(folder)}/metadata.json?t=${Date.now()}`);
+            if (!metaRes.ok) return null;
+            const meta = JSON.parse((await metaRes.text()).trim());
+            return Object.assign({
+              test_name: "-", timestamp: "-", started_by: "-", isArchived: false,
+              screenshots: [], verified: [], not_done: [], console_errors: [], files_changed: [], configs: [],
+            }, meta, { folder_name: folder, files: folderFiles[folder] });
+          } catch (e) { return null; }
+        }))).filter(Boolean);
+        applyFilters();
+      } catch (err) {
+        container.innerHTML = `<div class="error">Failed to load: ${esc(err.message)}</div>`;
+      }
+    }
+
+    updateSettingsBtn();
+    load();
+  </script>
+</body>
+</html>

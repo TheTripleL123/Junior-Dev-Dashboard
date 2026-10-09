@@ -1,0 +1,106 @@
+{
+  "test_name": "Stun lock overheat fails from left arm socket - 8470074b-80d8-4d0c-a4d1-076386b382a6",
+  "timestamp": "04-10-2026_19-06-18",
+  "finished_at": "04-10-2026_19-42-04",
+  "duration_minutes": 36,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Stun Lock does overheat the stunned bot, but a bot's stun timer pauses while the bot is in the air and its overheat timer did not. A punch or Focused Blaster blast wave launches the bot, so the overheat (as long as the stun) ran out mid-air while the stun still had about 1 s left. Jack doesn't get launched by a face hit, which is why only Jack looked right. The arm side plays no part: the left arm set up and converted the stun correctly. The fix pauses the overheat countdown whenever an active stun's countdown is paused (GameEntity.PropagateStatusEffects). In the editor, a left-arm Focused Blaster blast wave now keeps the Junkdog overheated through the airborne stun and after it lands. The result is inconclusive because punches, the Jack case and the end of the stun weren't observed (the Junkdog died first), and the regression check was skipped.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 2\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\ninvestigate and fix the bug, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT GIVES YOU ACCESS TO PREVIOUS SESSIONS OF ANY OTHER PEOPLE IN THE REPO",
+  "commit_ref": "master",
+  "commit_sha": "4c90a61cc3edebf52e6785a79e1bdddce4b6ec3d",
+  "work_branch": "Automations/ClaudeJuniorDev/8470074b-80d8-4d0c-a4d1-076386b382a6",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/73",
+  "files_changed": [
+    "Assets/Scripts/Combat/General/GameEntity/GameEntity.cs"
+  ],
+  "verified": [
+    "Before fix: with Stun Lock on ArmLeft, a left Focused Blaster blast wave stunned and overheated a Junkdog, and the overheat ended while the stun was still at 1.01 s and paused in the air",
+    "Traced the left arm's Stun Lock DamageModifier converting the stun into a SetOverheatDuration call on the Junkdog",
+    "After fix: same blast wave case, Junkdog stayed overheated while airborne (stun 1.38 s paused) and after landing (stun 1.18 s counting down)",
+    "Project compiles clean after the change"
+  ],
+  "not_done": [
+    "Jack face-hit case not re-tested after the fix",
+    "Punches not tested after the fix (same timer code, but not exercised)",
+    "Didn't observe stun and overheat ending together: the Junkdog died before its stun ran out",
+    "Regression set (other bot types, overheat from other sources) not captured; time budget ran out"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Interaction was issued to kill (UnsafeKill) entity Gas Balloon Prop (3), but did not kill it! - FIX ME!"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 5.28,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-stunlock-airborne-90",
+      "caption": "Junkdog isolated, in mid-air after the left blast wave, with the red overheat outline on its body; small in frame"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-stunlock-airborne-0",
+      "caption": "Same airborne stunned Junkdog from yaw 0 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog-stunlock-airborne-180",
+      "caption": "Same airborne stunned Junkdog from yaw 180 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-stunlock-airborne-270",
+      "caption": "Same airborne stunned Junkdog from yaw 270 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-junkdog-stunlock-airborne-45",
+      "caption": "Same airborne stunned Junkdog from yaw 45 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "non-isolated-wide-junkdog-stunlock-airborne-45",
+      "caption": "Wide view of the Quick Rampage arena around the airborne Junkdog (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "non-isolated-wide-junkdog-stunlock-airborne-135",
+      "caption": "Wide arena view from yaw 135 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "non-isolated-wide-junkdog-stunlock-airborne-225",
+      "caption": "Wide arena view from yaw 225 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-junkdog-stunlock-airborne-315",
+      "caption": "Wide arena view from yaw 315 (not reviewed individually)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-junkdog-stunlock-airborne-90",
+      "caption": "Wide arena view from yaw 90 (not reviewed individually)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "4834d8d2-6281-4c2a-b169-44c7072bea8c",
+  "session_job_result": "success",
+  "github_run_id": "37226635378",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37226635378",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1rhL3z9qF2pF50R6-dAWXbJhWD5bsfVii"
+}

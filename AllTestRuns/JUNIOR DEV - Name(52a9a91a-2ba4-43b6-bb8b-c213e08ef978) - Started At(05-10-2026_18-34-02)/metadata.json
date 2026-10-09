@@ -1,0 +1,48 @@
+{
+  "test_name": "HumusAsset scene overrides not baked into builds - 52a9a91a-2ba4-43b6-bb8b-c213e08ef978",
+  "timestamp": "05-10-2026_18-34-02",
+  "finished_at": "05-10-2026_18-54-09",
+  "duration_minutes": 20,
+  "started_by": "Nisan",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "The bug is real. The HumusAsset build step writes the stored path only into prefabs and assets, never into scenes. So in a build, a level that swaps a spawner's prefab still loads the original prefab's path. The build step also never wrote paths for HumusAsset lists (LootBox, ZoneSpawnOnCompletion), so those had no path at all. The fix, in HumusAssetProcessor, has two parts: before the build, it opens each build scene that uses these spawners and queues their prefabs for the build's Resources copy; while the build processes each scene, it writes the correct path into the scene copy. It also now handles lists. An editor simulation on 8 affected test levels wrote the scene's own prefab path for every value (for example 90 overrides in Parking, and MP Bomb Turbo instead of MP Bomb Blast in Cage Test 2). The result is inconclusive because no real player build has been run, and the scene scan adds about 3 minutes to each build.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: Humus Asset Scene Override Bug?\n\nDESCRIPTION:\n- \u26a0 **Likely live bug (found while checking a report question):** 10 test levels that are enabled in the build have 110 scene-level overrides of the prefab a `HumusAsset` field points to. The fields are on `Respawnable`, `MultiplayerSpawnEntity`, `ZoneSpawnOnCompletion` and `PurchaseSpawnController`. None of them overrides the stored path. The build step doesn't fill in that path for fields set in scenes, so builds probably spawn the original prefab, while the editor spawns the override. This is confirmed from the scene files only; nobody has tested it in a build yet.\n\nREQUEST (from Nisan):\nCan you fix?\n\nEXTRA (found on the card):\nDescription states 10 test levels enabled in the build have 110 scene-level overrides of the prefab a HumusAsset field points to; these fields are on Respawnable, MultiplayerSpawnEntity, ZoneSpawnOnCompletion and PurchaseSpawnController; none of the overrides updates the stored path; this is confirmed only from scene files, not yet tested in an actual build.",
+  "commit_ref": "master",
+  "commit_sha": "899927c224cc243563a868d7b92c1293a4865bbd",
+  "work_branch": "Automations/ClaudeJuniorDev/52a9a91a-2ba4-43b6-bb8b-c213e08ef978",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/84",
+  "files_changed": [
+    "Assets/Scripts/Utilities/Assets/Editor/HumusAssetProcessor.cs"
+  ],
+  "verified": [
+    "Scene stamping writes the scene's own target as projectPath for every owner value: Falloff 34/34, Parking 102/102, Blockeria 32/32, Crossy 12/12, Red Arena 27/27, Take Over 2/2, Cage Test 53/53, Cage Test 2 46/46 (including all 142 values that differ from the source prefab)",
+    "HumusAsset arrays (LootBox.prefabs) are now stamped element by element",
+    "ScanBuildScenes opens 37 of 153 enabled build scenes, matches 847 components and closes them without saving (~186 s in this editor)",
+    "Project compiles clean"
+  ],
+  "not_done": [
+    "No player build was made, so loading the override prefab from Resources in a player is untested",
+    "The Rocket Arena stamping check did not return (bridge reply lost)"
+  ],
+  "configs": [],
+  "console_errors": [
+    "Problem detected while opening the Scene file (Rocket Arena, Cage Test 2, Dungeon): missing Vendor prefab guids - pre-existing scene content",
+    "MissingReferenceException: The object of type 'UDShadowCamera' has been destroyed - logged when scenes load in edit mode, pre-existing"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.0,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "42b8e6a5-0c42-48d4-8a65-492024498998",
+  "session_job_result": "success",
+  "github_run_id": "37356262983",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37356262983",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1RZQq5lOrgDEM0c3hq2ImQ9yiNhUBqrQZ"
+}

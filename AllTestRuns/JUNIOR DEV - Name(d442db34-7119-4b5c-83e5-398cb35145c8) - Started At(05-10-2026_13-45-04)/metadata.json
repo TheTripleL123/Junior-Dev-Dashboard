@@ -1,0 +1,149 @@
+{
+  "test_name": "Stun Lock overheat missing in left arm socket - d442db34-7119-4b5c-83e5-398cb35145c8",
+  "timestamp": "05-10-2026_13-45-04",
+  "finished_at": "05-10-2026_14-11-28",
+  "duration_minutes": 26,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Stun Lock only overheated a bot when the hit that finished filling its stun meter came straight from the arm, like a Jack face hit. Usually the meter fills when the bot crashes after being knocked back, and that crash counted as the bot's own, so no overheat. The crash already credits the player 'in hindsight' (last hitter, thrower or holder), so the stun now keeps that credit and Stun Lock acts on stuns credited to its arm. In the editor, with Stun Lock on the left arm: a crash credited to the left arm stunned and overheated a Junkdog, a Focused Blaster shot stunned and overheated one, and the same crash credited to the right arm only stunned. Direct hits and Over Stun behave as before.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 1\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\nok but other addons like bloody mess can work with throws, we have ways to connect interactions \"in hindsight\", is there an elegant way to do it here?implement the solution\n\nEXTRA (found on the card):\nAmit instructed: investigate and fix, and explicitly said not to use /conversations or any other tool that lets you see previous conversations and solutions",
+  "commit_ref": "master",
+  "commit_sha": "45e31c82022d48156d58340d7883eb677d338073",
+  "work_branch": "Automations/ClaudeJuniorDev/d442db34-7119-4b5c-83e5-398cb35145c8",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/78",
+  "files_changed": [
+    "Assets/Scripts/Combat/General/GameEntity/GameEntity.cs",
+    "Assets/Scripts/Combat/Entities/EntityBehaviours/DamageHandler.cs",
+    "Assets/Scripts/Combat/Entities/EntityBehaviours/DamageModifier.cs",
+    "Assets/Scripts/Run/Items/Implementations/OverStun.cs",
+    "Assets/_Content/Items/Addons/Act 2/Addon - Stun Crashers.asset"
+  ],
+  "verified": [
+    "Junkdog stunned by a crash credited to the left arm (via CrashBehaviour.SetRemoteEntity after a left-arm hit) is stunned and overheated, overheat duration equals stun duration",
+    "Same crash credited to the right arm (no Stun Lock) stuns without overheat",
+    "Focused Blaster shot (BlastwaveFireController.TryFire) on a Junkdog stuns and overheats it",
+    "Direct left-arm hit that fills the stun buffer still overheats with equal duration",
+    "With Over Stun also on the left arm: direct hit gives 4.5s stun and equal overheat; crash-credited stun gives 1.5s stun and equal overheat",
+    "Second play session console has 0 errors"
+  ],
+  "not_done": [
+    "Jack face hit not tested; it is a direct hit, the same case as the direct-hit regression",
+    "Over Stun asset left with connectedModifyingEntityTypes None, so its x3 duration still applies only to direct-filled stuns (balance decision)",
+    "Multiplayer not verified (shared AddStunDamage path; connected handlers reviewed in code only)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Debug action 'Combat/Spawn/Junkdog' not found (test harness, wrong action name)",
+    "Entity Junkdog 101 (JunkDog) timed out in arena safety trigger (test dog teleported outside the arena)",
+    "Interaction was issued to kill (UnsafeKill) entity Gas Balloon Prop, but did not kill it! - FIX ME!",
+    "Found locked collision ignore pair who's colliders were destroyed. Key type is SpikingBehaviour"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 5.11,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-crash-stun-left-credited-180",
+      "caption": "Junkdog after a crash credited to the left arm: body red, smoke, stun and overheat icons on the bar - Stun Lock applied to a crash stun"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-crash-stun-left-credited-90",
+      "caption": "Same left-credited crash-stunned Junkdog from the side, red overheat body and both icons"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog-crash-stun-left-credited-270",
+      "caption": "Left-credited crash-stunned Junkdog from the other side"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-crash-stun-right-credited-control-180",
+      "caption": "Control: crash credited to the right arm - Junkdog lying stunned in normal colours, stun icon only, no overheat"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-junkdog-crash-stun-right-credited-control-90",
+      "caption": "Control Junkdog from the side, stun only"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-junkdog-focused-blaster-blastwave-stun-180",
+      "caption": "Junkdog hit by the Focused Blaster shot: stun and overheat icons, smoke, red tint fading in on the lower body"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-junkdog-focused-blaster-blastwave-stun-90",
+      "caption": "Focused Blaster stunned Junkdog from the side"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-left-vs-right-credited-crash-stun-180",
+      "caption": "Left- and right-credited crash-stunned Junkdogs in one frame (wide; the left-credited dog was blocked from every position)"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-junkdog-direct-left-stun-overheat-45",
+      "caption": "Regression: Junkdog stunned by a direct left-arm hit, still overheated"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-junkdog-direct-left-stun-overheat-225",
+      "caption": "Regression: direct-hit Junkdog from the opposite side"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-overstun-direct-vs-crash-stunlock-160",
+      "caption": "Regression with Over Stun + Stun Lock: direct-hit dog (4.5s stun) and crash-credited dog (1.5s) - both red with stun and overheat icons"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-overstun-direct-vs-crash-stunlock-200",
+      "caption": "Same Over Stun regression pair from another angle"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-junkdog-crash-stun-left-credited-135",
+      "caption": "Arena around the left-credited crash-stunned Junkdog (dog blocked by scenery from every position)"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-junkdog-crash-stun-left-credited-225",
+      "caption": "Arena around the left-credited dog from another side (blocked)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-junkdog-direct-left-stun-overheat-135",
+      "caption": "Arena around the direct-hit regression Junkdog"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-junkdog-focused-blaster-blastwave-stun-135",
+      "caption": "Arena around the Focused Blaster stunned Junkdog"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "non-isolated-wide-overstun-direct-vs-crash-stunlock-180",
+      "caption": "Arena around the Over Stun regression pair"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "e5b098f6-b90b-43c4-862c-9c33b7229f7f",
+  "session_job_result": "success",
+  "github_run_id": "37318548997",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37318548997",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1VyZJ1tAmNAPxEi8AvZVZaABN-K9cE4We"
+}

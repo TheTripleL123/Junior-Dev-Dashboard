@@ -1,0 +1,56 @@
+{
+  "test_name": "6382d5c4-e485-41db-9c04-7f8e34b826ee",
+  "timestamp": "30-09-2026_09-52-20",
+  "finished_at": "30-09-2026_10-19-40",
+  "duration_minutes": 27,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Root cause: BotHealthBar bound its stun source with GetComponentInParent<IStunComponent>(). JunkDogSpikes and ArmorEntity add EntityProxy components (which are GameEntities) to the dog's RibCage at runtime, so on spiked and armored dogs the bar read the proxy (stunDamage always 0, buffer 100) instead of the root entity. The fix resolves the stun source through GameEntity.GetEntity, which skips proxies. In play mode (Red Cage) I reproduced the bug on Spiked Junkdog before the fix. After the fix, all 17 MP junkdog and jungledog variants bind to the root entity, and the bar's max and value match the entity's stunBufferSize and stunDamage. Plain Turbo variants were already bound correctly before the fix; their bar fills at half rate because turbo halves stun damage by design.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Investigate and fix a bug affecting the stun mechanic for a specific set of enemies. This is a second attempt at this fix \u2014 a prior attempt on this task did not pass testing, so re-examine the problem from scratch rather than assuming a previous partial fix is correct.\n\nSymptom: for the affected enemies, the on-screen/UI stun bar does not visibly update as the enemy takes hits, but the enemy can still eventually become stunned after enough hits land. So the underlying stun accumulation logic appears to be working (or at least partially working), but the stun bar display/UI is not reflecting the accumulated stun correctly.\n\nAffected enemies:\n1. All junkdog variants EXCEPT the base junkdog and the bloodhound junkdog (those two work correctly).\n2. All jungledog variants EXCEPT the normal/base jungledog (that one works correctly).\n\nSince the base/normal variants of each enemy type work fine and only the other variants are broken, look for what differs between the working and broken variants in their enemy data/config assets \u2014 likely a YAML (or similar config) override on the variant assets that is missing, incorrect, or not being applied, causing the stun bar UI element to not be wired up or updated for these variants while the stun-hit/accumulation logic still runs. Compare the config/asset definitions of a working enemy (e.g. base junkdog) against a broken one (e.g. another junkdog variant) to find the discrepancy.\n\nDone means: for all listed junkdog and jungledog variants, the stun bar visibly fills/updates as hits land, consistent with the actual stun accumulation, matching the behavior already seen on base junkdog, bloodhound junkdog, and base jungledog.",
+  "commit_ref": "master",
+  "commit_sha": "eeab537169b45dbf54f03a94bb1a68f34403dde2",
+  "work_branch": "ClaudeJuniorDev/6382d5c4-e485-41db-9c04-7f8e34b826ee",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/52",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Before fix: MP Junkdog Spiked stun bar bound to RibCage EntityProxy (sd=0, max=100) while the entity had stunDamage 20/50",
+    "After fix: all 17 MP junkdog/jungledog variants (Spiked, Armored L/R/Both, Bloodhound, Turbo, Turbo Spiked, Turbo Armored, base) have the stun bar bound to the root entity, with max = stunBufferSize and the bar value following stunDamage after AddStunDamage",
+    "No new console errors"
+  ],
+  "not_done": [
+    "Plain Turbo Junkdog/Jungledog were already bound correctly before the fix and no separate display problem was reproduced on them; their bar fills at half rate because turbo halves stun damage by design",
+    "Not tested from a second client (remote-authority display)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Red Cage"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no mic, unrelated)",
+    "Renderer at path Mech Proteza Multiplayer (Clone)/.../Kills Progress/Progress has a null material at index 0 (unrelated)",
+    "RenderPass: Missing resolve surface for attachment 0 (unrelated)"
+  ],
+  "fix_rounds": 0,
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "red-cage-dog-variants-stun-bars",
+      "caption": "Variant dogs in Red Cage after 80% stun was added to each Spiked/Armored/Turbo dog; stun bars shown partially filled under the health bars (the dogs overlap, so this supports the numeric check rather than proving it alone)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "1a3d9751-8eb7-4b58-a3fe-96547639dabf",
+  "session_job_result": "success",
+  "github_run_id": "36698272455",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36698272455",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1kWJ06P4g1N7P4qMGf3zZlOvAVhhJNmEN"
+}

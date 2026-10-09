@@ -1,0 +1,144 @@
+{
+  "test_name": "Stun Lock not overheating stunned enemies from left arm weapon - f5b8b6a9-273e-424b-bab1-89c5d60dd172",
+  "timestamp": "02-10-2026_21-37-20",
+  "finished_at": "02-10-2026_22-02-59",
+  "duration_minutes": 26,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Stun Lock's outgoing DamageModifier on the arm only converts stun to overheat when the stun interaction is sourced from the arm. GameEntity.AddStunDamage sourced it from whichever contributor filled the stun buffer, and the enemy's own knockback crash often adds the last bit of stun after body hits and blast waves. Only Jack headshots (x15+50 stun) filled the buffer from the arm in one hit. AddStunDamage now attributes a self-filled stun to the last external contributor. Verified in SP by driving AddStunDamage with a Stun Lock-equivalent modifier on the left arm: Junkdog (arm then self crash) became stunned and overheated, a self-only stun stayed un-overheated, and an arm-only fill still overheated. Inconclusive because the real Focused Blaster and the item equipped through the run were not fired, and the crash-fills-buffer cause was read from source, not observed at runtime.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: The Stun Lock mechanic (stunned enemies should become Overheated) does not work when the stun/hit is applied via the Left arm socket weapon.\n\nReproduction details reported by QA:\n- Only enemies of type \"Jack\" become Overheated, and only when they are hit in the face (head hitbox).\n- Other enemy types, or hits to other body parts, do not trigger the Overheat state even though they are stunned.\n- The same failure also happens with the blast wave (splash/AoE) hit of the Focused Blaster weapon \u2014 stunned enemies hit by that blast wave do not become Overheated either.\n- This is being tracked as \"consistency test 3\" \u2014 the expectation is that ANY stunned enemy, regardless of enemy type or which hitbox/hit type caused the stun, and regardless of whether the stun came from a direct hit or a blast wave/AoE hit, should transition to Overheated state consistently.\n\nInvestigate the code path that links \"enemy becomes stunned\" to \"enemy becomes Overheated\", specifically for weapons/attacks fired from or associated with the Left arm socket, and for the Focused Blaster's blast wave/AoE damage path. Find why the Overheat trigger is currently scoped too narrowly (e.g. hardcoded to a specific enemy type like Jack, or only wired up for a specific hitbox like the head/face, or missing entirely from the blast wave hit-processing path), and fix the root cause so the stun-to-overheat transition fires consistently for all enemy types, all hit locations, and both direct and blast-wave hits coming from the Left arm socket weapons.\n\nDo not use /conversations or any other tool that gives access to previous fixes/changes made by other people in this repo \u2014 investigate and fix this independently using only the current state of the codebase.",
+  "commit_ref": "master",
+  "commit_sha": "1eeb8f03bfaf293d23d5e9458b96b8486e55ba39",
+  "work_branch": "Automations/ClaudeJuniorDev/f5b8b6a9-273e-424b-bab1-89c5d60dd172",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/67",
+  "files_changed": [
+    "Assets/Scripts/Combat/General/GameEntity/GameEntity.cs"
+  ],
+  "verified": [
+    "Arm 60% + self CrashBehaviour 60% stun on Junkdog -> stunned and overheated",
+    "Self-only stun on Roach -> stunned, not overheated",
+    "Arm-only buffer fill on Roach -> stunned and overheated"
+  ],
+  "not_done": [
+    "Real Focused Blaster / Left arm weapon fire with Stun Lock equipped through the run was not tested (modifier added by hand with the asset's values)",
+    "Not observed at runtime that a self crash is what fills the buffer for body hits and blast waves",
+    "MP variants not tested"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "1 error counted in console totals; the log filter could not display it, so it is unidentified"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 4.24,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "iso-close-junkdog-stunned-overheated",
+      "caption": "Isolated: Junkdog stunned by arm + self-crash fill shows overheat glow; Roach (self-only stun) does not"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-roach-selfstun-not-overheated",
+      "caption": "Isolated: Roach stunned by self contributions only - not overheated"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "iso-close-both-after",
+      "caption": "Isolated: both bots after the stun sequence"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "scene-close-junkdog-stunned-overheated",
+      "caption": "In scene: Junkdog overheated after a self-filled stun attributed to the arm"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "scene-close-both",
+      "caption": "In scene: Junkdog overheated next to Roach stunned-only"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "scene-wide-both",
+      "caption": "Wide: both bots in Quick Rampage, no other breakage visible"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "scene-wide-junkdog",
+      "caption": "Wide: Junkdog overheated in the arena"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "iso-close-both-after-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "iso-close-junkdog-stunned-overheated-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "iso-close-roach-selfstun-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-close-both-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-close-junkdog-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "scene-close-roach-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "scene-close-roach-selfstun-not-overheated",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "scene-wide-both-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "scene-wide-junkdog-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "scene-wide-roach-b",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "scene-wide-roach",
+      "caption": ""
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "55549cf0-d8ec-4647-a4ab-e48226718c36",
+  "session_job_result": "success",
+  "github_run_id": "37067434725",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37067434725",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1LRPwPVfugJ8V6gMzzKi_mRQ1o9kpu-5Y"
+}

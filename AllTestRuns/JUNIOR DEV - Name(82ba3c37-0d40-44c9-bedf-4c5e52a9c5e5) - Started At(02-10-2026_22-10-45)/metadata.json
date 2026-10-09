@@ -1,0 +1,118 @@
+{
+  "test_name": "Stun Lock Overheated fails on left arm and blast wave hits - 82ba3c37-0d40-44c9-bedf-4c5e52a9c5e5",
+  "timestamp": "02-10-2026_22-10-45",
+  "finished_at": "02-10-2026_22-43-42",
+  "duration_minutes": 33,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Stun Lock (OverStun) added its Stun->Overheat DamageModifier only to the arm it was socketed in, and outgoing modifiers only see stuns sourced from that arm's subtree. Stuns from the other arm, its weapon and its Focused Blaster blast waves never converted. Added an applyToWholeMech option to OverStun that puts the modifier on the mech root, and enabled it on the Stun Lock asset; Over Stun stays per-arm. In play with Stun Lock equipped into the right arm via Item.CombatSetup, a left punch stun, a real left-owned Focused Blaster shockwave and a right effector stun all left Junkdogs stunned and overheated, with 12 captures (check-captures OK). Inconclusive because the hits were scripted interactions, not real VR punches or a real blaster slam, and the report's 'only Jack/face hits work' could not be mapped to any code; the scoping cause is inferred.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: the Stun Lock effect (the mechanic where a stunned enemy should be treated as Overheated) does not work when the stun/hit comes from the Left Arm socket weapon. Only hits registered as \"Jack\" (face hits) correctly apply the Overheated state when they stun an enemy. The same failure also happens for the blast wave / splash hit of the Focused Blaster \u2014 it fails to apply Overheated on stun just like the left arm socket case.\n\nInvestigate the code path that:\n1. Detects a stun on an enemy and is supposed to convert that stun into the Overheated status.\n2. Determines where the triggering hit came from (which socket/weapon type, e.g. left arm socket, face/\"Jack\" hit, Focused Blaster blast wave AoE hit).\n\nFind why the Overheated-on-stun logic only fires for face/\"Jack\" hits but not for hits originating from the left arm socket weapon, and not for the Focused Blaster's blast wave (splash/AoE) hit. Likely causes to check: hit-source/weapon-type checks that only whitelist the face/Jack hit case and exclude other sockets or AoE hits, event/callback not being raised or listened to for left-arm-socket and blast-wave hit paths, or the stun-applied event not propagating correctly for these hit types.\n\nFix the root cause so that any hit that causes a stun \u2014 regardless of whether it comes from the left arm socket, a face/\"Jack\" hit, or the Focused Blaster's blast wave/AoE hit \u2014 correctly triggers the Overheated status on the stunned enemy.\n\nDo not use /conversations or any other tool that gives you access to previous fixes/changes made by other people in this repo \u2014 investigate and fix this independently using only the current state of the code.\n\nDone means: stunning an enemy via left arm socket weapon hits, via face/\"Jack\" hits, and via the Focused Blaster's blast wave hit all consistently result in the enemy entering the Overheated state.",
+  "commit_ref": "master",
+  "commit_sha": "1eeb8f03bfaf293d23d5e9458b96b8486e55ba39",
+  "work_branch": "Automations/ClaudeJuniorDev/82ba3c37-0d40-44c9-bedf-4c5e52a9c5e5",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/70",
+  "files_changed": [
+    "Assets/Scripts/Run/Items/Implementations/OverStun.cs",
+    "Assets/_Content/Items/Addons/Act 2/Addon - Stun Crashers.asset"
+  ],
+  "verified": [
+    "Stun Lock equipped into the right arm via Item.CombatSetup puts its DamageModifier on the Gorilla Mech root",
+    "Left punch-sourced stun hit on Junkdog 101 -> stunned and overheated",
+    "Real BlastwaveManager shockwave (Focused Blaster shockwaveData) owned by the left effector on Junkdog 104 -> stunned and overheated, health bar shows Overheat and Stun icons",
+    "Right effector stun (same arm as Stun Lock) on Junkdog 103 -> stunned and overheated",
+    "Project compiles clean"
+  ],
+  "not_done": [
+    "Real VR punches / a real Focused Blaster slam were not performed (no headset); hits were scripted interactions plus a directly spawned shockwave",
+    "The report's 'Jack / face hits' case was not identified in code or reproduced",
+    "Stuns from crashes or thrown enemies (connectedModifyingEntity) still do not convert - out of scope"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "System.NullReferenceException at SP_PlayerPunchBehavior.OnPunchResolved:403 (test harness: synthetic punch without collider)",
+    "PooledObject should not be destroyed, but returned to PrefabPoolManager (manually spawned shockwave VFX on exit play)",
+    "Damage will not resolve in anything. GOD does not know what to do here (GodModeAddon, unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 6.05,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "iso-close-junkdog104-shockwave-left-overheated-90",
+      "caption": "Junkdog 104 after a left-owned Focused Blaster shockwave with Stun Lock in the right arm - health bar shows Overheat and Stun icons"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-junkdog104-shockwave-left-overheated-200",
+      "caption": "Same bot from another side, isolated"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "iso-close-junkdog101-punch-left-overheated-90",
+      "caption": "Junkdog 101 after a left punch stun with Stun Lock in the right arm (stunned + overheated at capture time per runtime read)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "iso-close-junkdog101-punch-left-overheated-250",
+      "caption": "Junkdog 101, other angle, isolated"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "scene-close-junkdog104-shockwave-left-overheated-a",
+      "caption": "Junkdog 104 in the scene after the left shockwave stun"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "scene-close-junkdog104-shockwave-left-overheated-b",
+      "caption": "Junkdog 104 in the scene, second angle"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "scene-close-junkdog101-punch-left-overheated-a",
+      "caption": "Junkdog 101 in the scene after the left punch stun"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "scene-close-junkdog103-right-stunned-a",
+      "caption": "Junkdog 103 (regression: right effector stun, same arm as Stun Lock)"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "scene-wide-junkdog104-shockwave-left-135",
+      "caption": "Wide view around Junkdog 104 (the only wide shot with the subject unblocked)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "scene-wide-junkdog104-shockwave-left-45",
+      "caption": "Wide view toward Junkdog 104 - subject blocked by geometry"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-wide-junkdog101-103-225",
+      "caption": "Wide view toward Junkdogs 101/103 - subjects blocked by geometry"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-wide-junkdog101-103-315",
+      "caption": "Wide view toward Junkdogs 101/103 - subjects blocked by geometry"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "4bac33a8-1618-473e-9479-c1c3469e98ee",
+  "session_job_result": "success",
+  "github_run_id": "37070650142",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37070650142",
+  "test_successful": false
+}

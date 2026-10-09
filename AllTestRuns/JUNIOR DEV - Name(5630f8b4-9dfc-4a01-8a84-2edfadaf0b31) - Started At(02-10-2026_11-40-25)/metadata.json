@@ -1,0 +1,161 @@
+{
+  "test_name": "Stun Lock not applying Overheated from left arm and blast wave - 5630f8b4-9dfc-4a01-8a84-2edfadaf0b31",
+  "timestamp": "02-10-2026_11-40-25",
+  "finished_at": "02-10-2026_12-02-42",
+  "duration_minutes": 22,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Stun Lock (OverStun addon) added its Stun->Overheat DamageModifier to the arm it was equipped on. Because of that, stuns filled by the other arm's weapon, or by a blast wave that weapon fired, were never converted. A new OverStun.applyToMech option, enabled on the Stun Lock asset only, puts the modifier on the root player mech. Verified in Play mode (SP, Quick Rampage) with Stun Lock on the right arm. A left-effector stun hit and a real Shockwave owned by the left effector (with the Focused Blaster's shockwave data) both produced Overheat, and the dog showed isStunned and isOverheated at the same time. Regression: right-arm stuns still overheat, Over Stun is still per arm and still boosts duration before the conversion (4.5s stun -> 4.5s overheat). Console had 0 errors.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "There's a bug with the Stun Lock mechanic (the effect that is supposed to set a Stunned enemy to Overheated status) when triggered from the Left arm weapon socket.\n\nReproduction / symptoms reported:\n- Stun Lock does not work when the hit comes from a weapon equipped in the Left arm socket \u2014 stunned enemies do not transition to Overheated as expected.\n- The only case that currently works is when \"Jack\" (enemy/unit type) gets hit in the face directly \u2014 that correctly triggers Overheated.\n- The same failure (Stun Lock not applying Overheated) also happens with the blast wave / splash hit of the Focused Blaster weapon, not just its direct hit.\n\nInvestigate the Stun Lock / Overheated status application code path, including how it's wired for each arm socket (left vs right, or left vs whichever socket does work) and how it's wired for direct hits vs area/blast-wave hits (specifically for the Focused Blaster's blast wave). Find the root cause of why left-arm-socket hits and blast-wave hits fail to apply Overheated to stunned enemies while a direct face hit on Jack succeeds, and fix it so that any valid stunning hit \u2014 regardless of which arm socket fired it, and regardless of whether it's a direct hit or a blast-wave/splash hit \u2014 correctly applies Overheated to a stunned enemy.\n\nDo not use /conversations or any other tool that gives you access to previous fixes/changes made by other people in this repo \u2014 investigate and fix this using only the current state of the codebase.\n\nDone means: a weapon in the left arm socket that stuns an enemy correctly sets that enemy to Overheated, the Focused Blaster's blast wave hit correctly sets a stunned enemy to Overheated, and the existing working case (direct face hit) continues to work.",
+  "commit_ref": "master",
+  "commit_sha": "35eb1f04345a6c37520e807ff2adad5456e7ea6d",
+  "work_branch": "Automations/ClaudeJuniorDev/5630f8b4-9dfc-4a01-8a84-2edfadaf0b31",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/65",
+  "files_changed": [
+    "Assets/Scripts/Run/Items/Implementations/OverStun.cs",
+    "Assets/_Content/Items/Addons/Act 2/Addon - Stun Crashers.asset"
+  ],
+  "verified": [
+    "Stun Lock's DamageModifier is on the root SP_PlayerMech when equipped on the right arm",
+    "Left effector stun hit produces Overheat(dur=1.5) on the stun interaction",
+    "Shockwave owned by the left effector (Focused Blaster shockwaveData) produces Overheat and the dog is stunned and overheated at the same time",
+    "Right effector stun still produces Overheat",
+    "Over Stun on left arm still per arm and ordered before the conversion (Stun 4.5 -> Overheat 4.5)",
+    "No console errors"
+  ],
+  "not_done": [
+    "Real Focused Blaster effector not equipped: the blast wave was spawned directly via BlastwaveManager.CreateShockwave with its data",
+    "Hits were synthetic (no VR)",
+    "Jack not spawned (a Junkdog was used, same code path)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 5.01,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "iso-close-dog-left-stunned-overheated-0",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-dog-left-stunned-overheated-135",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "iso-close-dog-left-stunned-overheated-180",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "iso-close-dog-left-stunned-overheated-225",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "iso-close-dog-left-stunned-overheated-270",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "iso-close-dog-left-stunned-overheated-45",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "iso-close-dog-left-stunned-overheated-90",
+      "caption": "iso-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "scene-close-dog-left-stunned-overheated-0",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "scene-close-dog-left-stunned-overheated-135",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "scene-close-dog-left-stunned-overheated-180",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-close-dog-left-stunned-overheated-225",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-close-dog-left-stunned-overheated-270",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "scene-close-dog-left-stunned-overheated-45",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "scene-close-dog-left-stunned-overheated-90",
+      "caption": "scene-close: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-135",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-180",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-225",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-270",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-315",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-45",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "scene-wide-dog-left-stunned-overheated-90",
+      "caption": "scene-wide: Junkdog stunned by a left-effector blast wave with Stun Lock on the right arm, showing the overheat glow (isStunned and isOverheated both true at capture)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "766a3619-50d9-477a-a9a5-c6a0ab478757",
+  "session_job_result": "success",
+  "github_run_id": "37001869673",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37001869673",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1O4UbbMS1EO5jYdD-ekvwDfILPmB8BQQu"
+}

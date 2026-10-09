@@ -1,0 +1,192 @@
+{
+  "test_name": "Stun bar not filling on junkdog/jungledog variants - b2df7cc8-fd08-4b8a-90d8-915e8129e00e",
+  "timestamp": "02-10-2026_12-07-06",
+  "finished_at": "02-10-2026_12-32-35",
+  "duration_minutes": 25,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "BotHealthBar took its stun source from GetComponentInParent<IStunComponent>(), which on armored variants (ArmorEntity proxy on PhysicsRig) and spiked variants (JunkDogSpikes proxy on RibCage) resolved to an EntityProxy whose stunDamage is always 0, while stun accumulated on the root entity. The fix walks the stun source up past GameEntity with hasStatusEffects=false to the root, mirroring the existing health-source loop. In SP Quick Rampage I confirmed the raw lookup returned EntityProxy on all four affected variants spawned, and that with the fix all 7 dogs (4 affected + base Junkdog, base JungleDog, Bloodhound) resolve to the root and their stun bar displays the entity's stun (60%) and switches to the stun-duration display when stunned. Hits were simulated via GameEntity.AddStunDamage (the DamageHandler path), not live punches.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "There is a bug affecting the stun mechanic for certain singleplayer enemies: their stun bar UI/value does not visibly change as they take hits, yet after enough hits land they do become stunned. This means the stun accumulation is happening internally but the stun bar display (or the underlying tracked value it reads from) is not being updated/synced correctly for these enemies.\n\nAffected enemies:\n1. All junkdog enemy variants EXCEPT the base junkdog and the bloodhound junkdog (those two work correctly).\n2. All jungledog enemy variants EXCEPT the normal/base jungledog (that one works correctly).\n\nSince the base/normal variants of each enemy type work fine but the other variants of the same type do not, the root cause is likely something specific to how those variant subclasses/prefabs/configs override or initialize the stun-related component (e.g. a missing reference, an overridden method that skips updating the bar, a different stun component/prefab used for variants that isn't wired to the UI, or a config value that disables the bar update while still allowing stun threshold logic to run).\n\nPlease investigate:\n- Find the stun bar component/script and how it's normally updated when an enemy takes a hit, using the base junkdog and normal jungledog as the known-good reference implementations.\n- Compare that against the implementation/setup for the other junkdog and jungledog variants to find where the stun bar update path diverges or is broken (e.g. prefab missing a reference, variant class overriding a method without calling the stun bar update, event not hooked up, etc).\n- Fix the root cause so that the stun bar correctly updates/displays progress for all junkdog variants and all jungledog variants, consistent with how the base junkdog and normal jungledog already behave. Do not just make the bar cosmetically move without fixing why it was disconnected \u2014 the actual root cause of the disconnect between stun accumulation and the bar display needs to be found and corrected for every affected variant.\n\nDefinition of done: for every junkdog variant (except base junkdog and bloodhound junkdog, which already work) and every jungledog variant (except normal/base jungledog, which already works), the stun bar visibly fills up as hits land, and the enemy becomes stunned once the bar is full, matching the behavior of the already-working variants.\n\nNote: do not use /conversations or any other tool that gives access to previous fixes/changes made by other people in this repo \u2014 investigate and fix this using only the current state of the codebase.",
+  "commit_ref": "master",
+  "commit_sha": "35eb1f04345a6c37520e807ff2adad5456e7ea6d",
+  "work_branch": "Automations/ClaudeJuniorDev/b2df7cc8-fd08-4b8a-90d8-915e8129e00e",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/66",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Old stun lookup resolves to EntityProxy on Junkdog Armored, Junkdog Spiked, JungleDog Spiked, JungleDog Armored Left",
+    "With fix, BotHealthBar._stunComponent is the root JunkDogEntity on all 7 spawned dogs",
+    "Stun bar UI value equals entity stunDamage at 60% on all 7 dogs (affected + base Junkdog, base JungleDog, Bloodhound)",
+    "Filling the stun buffer stuns all 7 dogs and the bar shows the stun-duration state"
+  ],
+  "not_done": [
+    "Turbo, Pet and other Left/Right Armored variants not spawned (same proxy setup as verified variants)",
+    "Debug action Combat/Spawn/Jungledog/Armored Both is broken (prefab not found); not fixed, out of scope",
+    "Hits simulated via AddStunDamage rather than live player punches"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Jungledog Armored Both'",
+    "Interaction was issued to kill (UnsafeKill) entity Gas Balloon Prop, but did not kill it! - FIX ME!",
+    "System.FieldAccessException: Field `Bots.BotHealthBar:myEntity' is inaccessible (QA test script, not game code)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.62,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "iso-close-bloodhound-stun60-90",
+      "caption": "Bloodhound (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-jungledog-armoredleft-stun60-90",
+      "caption": "JungleDog Armored Left (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "iso-close-jungledog-base-stun60-90",
+      "caption": "base JungleDog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "iso-close-jungledog-spiked-stun60-90",
+      "caption": "JungleDog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "iso-close-jungledog-spiked-stunned-90",
+      "caption": "JungleDog Spiked (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "iso-close-junkdog-armored-stun60-90",
+      "caption": "Junkdog Armored (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "iso-close-junkdog-armored-stunned-90",
+      "caption": "Junkdog Armored (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "iso-close-junkdog-base-stun60-90",
+      "caption": "base Junkdog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "iso-close-junkdog-spiked-stun60-90",
+      "caption": "Junkdog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "scene-close-bloodhound-stun60-90",
+      "caption": "Bloodhound (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-close-jungledog-armoredleft-stun60-90",
+      "caption": "JungleDog Armored Left (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-close-jungledog-base-stun60-90",
+      "caption": "base JungleDog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "scene-close-jungledog-spiked-stun60-90",
+      "caption": "JungleDog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "scene-close-jungledog-spiked-stunned-90",
+      "caption": "JungleDog Spiked (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "scene-close-junkdog-armored-stun60-90",
+      "caption": "Junkdog Armored (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "scene-close-junkdog-armored-stunned-90",
+      "caption": "Junkdog Armored (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "scene-close-junkdog-base-stun60-90",
+      "caption": "base Junkdog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "scene-close-junkdog-spiked-stun60-90",
+      "caption": "Junkdog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "scene-wide-bloodhound-stun60-135",
+      "caption": "Bloodhound (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "scene-wide-jungledog-armoredleft-stun60-135",
+      "caption": "JungleDog Armored Left (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "scene-wide-jungledog-base-stun60-135",
+      "caption": "base JungleDog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_22.webp",
+      "name": "scene-wide-jungledog-spiked-stun60-135",
+      "caption": "JungleDog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_23.webp",
+      "name": "scene-wide-jungledog-spiked-stunned-135",
+      "caption": "JungleDog Spiked (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_24.webp",
+      "name": "scene-wide-junkdog-armored-stun60-135",
+      "caption": "Junkdog Armored (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_25.webp",
+      "name": "scene-wide-junkdog-armored-stunned-135",
+      "caption": "Junkdog Armored (affected) stunned after filling the buffer: stun icon + blue stun-duration bar"
+    },
+    {
+      "file": "SCREENSHOT_26.webp",
+      "name": "scene-wide-junkdog-base-stun60-135",
+      "caption": "base Junkdog (regression) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    },
+    {
+      "file": "SCREENSHOT_27.webp",
+      "name": "scene-wide-junkdog-spiked-stun60-135",
+      "caption": "Junkdog Spiked (affected) with stun held at 60%: teal stun bar about 60% full, matching entity stunDamage"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "a76ddc77-9d8f-45f8-8cdd-b4cd47d665f8",
+  "session_job_result": "success",
+  "github_run_id": "37004334168",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37004334168",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1Ukxfgtcez3wuC2RLHp1jZGt-lmtDYPhO"
+}

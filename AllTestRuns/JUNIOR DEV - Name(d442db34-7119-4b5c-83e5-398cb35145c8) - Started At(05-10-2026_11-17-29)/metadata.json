@@ -1,0 +1,51 @@
+{
+  "test_name": "Stun Lock overheat fails in left arm socket - d442db34-7119-4b5c-83e5-398cb35145c8",
+  "timestamp": "05-10-2026_11-17-29",
+  "finished_at": "05-10-2026_11-40-25",
+  "duration_minutes": 23,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Root cause found, but no code was changed. Stun Lock only overheats an enemy when the hit that completes its stun bar comes from the arm Stun Lock is on. GameEntity.AddStunDamage (GameEntity.cs:870) credits the whole stun to that last hit only, and Stun Lock's DamageModifier (DamageModifier.cs:64) converts stun to overheat only when that source is under its own arm. In the editor, with Stun Lock in the left arm socket: when the left arm completed the bar, every case overheated (Jack body punches, Jack head via a Focused Blaster shockwave, Junkdog punches). When a Junkdog was hit twice by the left arm and once by the right, and the right-arm hit completed the bar, it was stunned but not overheated. Knocked-back bots also take stun from crashing into props (CrashBehaviour, e.g. Car 1 - Red), so in normal play the last bit of stun is often not from the Stun Lock arm. A Jack face hit adds about 500 stun, which fills the bar in one hit, so it always works. I did not pick a fix because it needs a design decision: which stuns should count for Stun Lock, and in what order stun-duration items like Over Stun should apply. Either way it changes core stun code that every entity shares.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 1\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\ninvestigate and fix, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT LETS YOU SEE PREVIOUS CONVERSATIONS AND SOLUTIONS",
+  "commit_ref": "master",
+  "commit_sha": "cb136001353649b59f8b18173dd481b911d9f941",
+  "work_branch": "Automations/ClaudeJuniorDev/d442db34-7119-4b5c-83e5-398cb35145c8",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Stun Lock on ArmLeft, left-arm hits completing the stun bar give stun + overheat on Jack (body punches, head via Focused Blaster shockwave) and Junkdog",
+    "Stun Lock on ArmLeft, Junkdog bar completed by a right-arm hit after 2 left-arm hits: stunned, not overheated (stun interaction source Effector - Baton - Default_Right, no Overheat added)",
+    "Prop crashes (CrashBehaviour) add stun to knocked-back bots"
+  ],
+  "not_done": [
+    "Fix not implemented: needs a design decision on which stuns count for Stun Lock (see next_steps); the current behaviour credits a stun only to the hit that completes the stun bar"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Debug action 'Combat/Spawn/Junkdog' not found (my wrong action name, test setup only)",
+    "Pinch Punch - the target mesh was not setup for deformations Jack 101/Jack Rig/Jack Composited/Skinned/Body Level 0",
+    "NullReferenceException at PlanarRingPropagation.ShowEffect (PlanarRingPropagation.cs:90) when calling BlastwaveManager.CreateShockwave directly from a bridge script"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.96,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "344cc28a-a740-450d-b39f-ffc2b10cfac0",
+  "session_job_result": "success",
+  "github_run_id": "37301364730",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37301364730",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1i4r9O7Lxy_BOwytH2vC-evYNcoWy6LSH"
+}

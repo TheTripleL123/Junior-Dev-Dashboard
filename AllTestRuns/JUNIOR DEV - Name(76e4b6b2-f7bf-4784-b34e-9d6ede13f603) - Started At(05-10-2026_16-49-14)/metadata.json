@@ -1,0 +1,53 @@
+{
+  "test_name": "No lyrics music button still plays songs with lyrics - 76e4b6b2-f7bf-4784-b34e-9d6ede13f603",
+  "timestamp": "05-10-2026_16-49-14",
+  "finished_at": "05-10-2026_16-58-57",
+  "duration_minutes": 10,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "The No Lyrics toggle only muted the vocals of the song playing at that moment. Every new song (next track, skip, streamer-mode change) started with vocals back on, and this only happened in builds because the editor re-applies the setting every frame. The fix makes the music system keep the vocal (and volume) setting for every track the playlist starts. In the editor, with the editor-only re-apply turned off, muted lyrics stayed at vocal 0 on a skipped track and after a streamer-mode restart, and un-muting brought vocals back on the current and next track; console had no errors. The result is inconclusive only because the check is on audio values - there is nothing visual to screenshot and the cloud machine has no sound output, so nobody has listened to it yet.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: 'no lyrics' button does not work\n\nDESCRIPTION:\nI still get songs with lyrics\n\nREQUEST (from Amit):\ninvestigate and fix",
+  "commit_ref": "master",
+  "commit_sha": "66ec5fc71e7253f137ab102e25704f50ea79eb1b",
+  "work_branch": "Automations/ClaudeJuniorDev/76e4b6b2-f7bf-4784-b34e-9d6ede13f603",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/79",
+  "files_changed": [
+    "Assets/Scripts/Game/Audio/Audio2.0/AudioPlaylistHandler.cs",
+    "Assets/Scripts/Game/Audio/Music/MusicManager_Impl.cs"
+  ],
+  "verified": [
+    "Lyrics muted, MusicManager_Impl editor re-apply disabled, Skip: new FMOD instance has Vocal=0",
+    "Lyrics muted, streaming-mode playlist restart: new FMOD instance has Vocal=0",
+    "Lyrics un-muted: current instance Vocal=1, next instance after Skip Vocal=1",
+    "Volume=1 on every new instance; music keeps playing after skip and restart",
+    "Compiles clean; 0 console errors in play"
+  ],
+  "not_done": [
+    "Not heard by ear - the cloud machine has no audio output and audio cannot be shown in screenshots",
+    "Natural end-of-track advance not waited for - same AudioPlaylistHandler.Update -> PlayCurrentSound path as Skip (read in code)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 1.63,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "fb9afe36-9037-4720-8b57-03ae813b9ff3",
+  "session_job_result": "success",
+  "github_run_id": "37343106462",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37343106462",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1gOutz2JoFEfdwcrZntuuD0CY-RxeepDy"
+}

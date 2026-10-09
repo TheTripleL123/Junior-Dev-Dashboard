@@ -1,0 +1,67 @@
+{
+  "test_name": "f34a4d87-0606-412f-af52-42a1471a1daa",
+  "timestamp": "01-10-2026_11-45-10",
+  "finished_at": "01-10-2026_12-06-01",
+  "duration_minutes": 21,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "BotHealthBar.Setup bound the stun bar with GetComponentInParent<IStunComponent>(), which picked EntityProxy components that JunkDogSpikes (RibCage) and ArmorEntity (PhysicsRig) add at runtime above the bar; proxies never track stun, so the bar stayed at 0 while the root entity still got stunned. The bar now uses GameEntity.GetEntity(gameObject), which skips proxies. In SP play mode (Quick Rampage) every spawned Spiked/Armored Junkdog and Jungledog bar was bound to the root JunkDogEntity (old lookup confirmed to return the proxies), the bar UI value matched the root's stunDamage after partial stun, and the dogs became stunned at the full buffer. Stun was applied via AddStunDamage from code rather than real punches.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "Bug: for certain singleplayer enemy types, the stun bar UI does not visually update as the enemy takes stun-causing hits, even though the enemy does eventually become stunned after enough hits land (so the underlying stun accumulation logic is working, but the bar display is not reflecting it).\n\nAffected enemies:\n1. All junkdog enemy variants EXCEPT the base junkdog and the bloodhound junkdog (those two work correctly).\n2. All jungledog enemy variants EXCEPT the normal/base jungledog (that one works correctly).\n\nSince the base/normal variants of each enemy family work fine but the other variants in the same family don't, investigate how the stun bar is wired up for enemy types \u2014 likely each enemy variant has its own prefab/config/subclass, and the non-working variants are probably missing a reference, component, or override (e.g. stun bar UI element not hooked up, a missing component binding, or an overridden method/property that skips updating the bar) that the base variants have correctly set up. Compare the working base junkdog/bloodhound junkdog and base jungledog configurations against the broken variants to find what differs and is causing the stun bar to not update.\n\nFix it so the stun bar visually updates in real time as these enemies take stun damage/hits, matching the behavior of the working base variants, for every junkdog variant (except base junkdog and bloodhound junkdog, which already work) and every jungledog variant (except the normal base jungledog, which already works).\n\nDone means: in singleplayer, hitting any of the affected junkdog and jungledog variants causes their on-screen stun bar to progressively fill/update with each hit, and the enemy still becomes stunned at the correct threshold, consistent with how the already-working base junkdog, bloodhound junkdog, and base jungledog behave.",
+  "commit_ref": "master",
+  "commit_sha": "ff565bf0170da0ca45a0f764f5e6aaf649514dd5",
+  "work_branch": "Automations/ClaudeJuniorDev/f34a4d87-0606-412f-af52-42a1471a1daa",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/55",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Junkdog Spiked, Junkdog Armored Both, Jungledog Spiked, Jungledog Armored Left: BotHealthBar._stunComponent is the root JunkDogEntity; old GetComponentInParent lookup returns EntityProxy:RibCage / EntityProxy:PhysicsRig",
+    "After partial AddStunDamage on the root, stunBarUI value equals root stunDamage (e.g. 20.59/50, 28.83/70)",
+    "Full buffer stun sets isStunned=true on all non-Turbo dogs; base Junkdog control unchanged",
+    "No new console errors from the change"
+  ],
+  "not_done": [
+    "Jungledog Armored Both not spawned: debug action Combat/Spawn/Jungledog/Armored Both is broken (Could not find prefab) - Armored Left tested instead",
+    "Plain Turbo/Friendly/Pet/XMas variants have no armor/spikes proxies so this cause does not apply; Turbo fills at half rate because turbo halves stun damage by design",
+    "Stun applied from code, not by real punches - a hands-on hit check is recommended"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Jungledog Armored Both' (debug spawn action, unrelated)",
+    "RenderPass: Missing resolve surface for attachment 0. Are you tring to resolve a bindMS rendertarget? (during screenshot capture, unrelated)",
+    "EndRenderPass: Not inside a Renderpass (during screenshot capture, unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.14,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "dog-variants-stun-bar-partial",
+      "caption": "Player view after partial stun on the variants: the stun strip under the dogs' health bars is partly filled"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "dog-variants-stunned",
+      "caption": "Player view after full-buffer stun was applied to all spawned dog variants"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "854c7797-197d-4f2d-a682-e35e84a3b47a",
+  "session_job_result": "success",
+  "github_run_id": "36856749808",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36856749808",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1WWYAJFnppooonZSj1XVkP6R-tu4mLXBh"
+}

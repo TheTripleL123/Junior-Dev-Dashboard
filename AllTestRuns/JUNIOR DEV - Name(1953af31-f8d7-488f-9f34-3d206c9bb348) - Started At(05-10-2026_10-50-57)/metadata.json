@@ -1,0 +1,169 @@
+{
+  "test_name": "Stun bar not updating on most junkdog/jungledog variants - 1953af31-f8d7-488f-9f34-3d206c9bb348",
+  "timestamp": "05-10-2026_10-50-57",
+  "finished_at": "05-10-2026_11-08-53",
+  "duration_minutes": 18,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "The spikes and armor on the Junkdog and JungleDog variants add an invisible helper object on the dog's rib cage and body at spawn. The bot's stun bar looked up its stun source from the rib cage, so it found that helper instead of the dog. The helper never builds up stun, which is why the bar stayed empty while the dog itself still got stunned. The bar now ignores objects that cannot hold stun and reads the dog itself (BotHealthBar.cs). In the editor, all 14 reported variants plus base Junkdog, Bloodhound and base JungleDog had stun added. Every bar matched the dog's real stun value, and the mint stun line visibly fills in screenshots. Filling the buffer still stuns the dog. The plain Turbo Junkdog/JungleDog bars already worked before the fix; they only fill at half speed because turbo halves stun.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: some enemies' stun bar is broken - Consistency Test 1\n\nDESCRIPTION:\ntheir stun bar does not change, but after some hits they can get stunned, the singleplayer enemies are:\n\n1. all junkdogs except base junkdog and bloodhound junkdog\n2. all jungledogs except normal base\n\nREQUEST (from Amit):\ninvestigate and fix, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT LETS YOU SEE PREVIOUS CONVERSATIONS AND SOLUTIONS",
+  "commit_ref": "master",
+  "commit_sha": "cb136001353649b59f8b18173dd481b911d9f941",
+  "work_branch": "Automations/ClaudeJuniorDev/1953af31-f8d7-488f-9f34-3d206c9bb348",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/75",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Before the fix: the stun bar on Junkdog Spiked read the spike EntityProxy on RibCage and Junkdog Armored read the armor EntityProxy on PhysicsRig, staying at 0/100 while the dog's stun was 16.5/50",
+    "After the fix: the stun bar on all 14 reported variants (Junkdog and JungleDog Spiked, Armored Both/Left/Right, Turbo, Turbo Spiked, Turbo Armored) reads the dog's root entity and its value equals the dog's stunDamage after AddStunDamage(20)",
+    "The mint stun line visibly fills from the right end on Junkdog Spiked, Turbo Junkdog Armored and JungleDog Armored-Left",
+    "Regression: base Junkdog, Bloodhound and base JungleDog stun bars still match their stun and show the line",
+    "Filling Junkdog Spiked's stun buffer still stuns it"
+  ],
+  "not_done": [
+    "cause not found: plain Turbo Junkdog / Turbo JungleDog frozen stun bar - the runtime check showed their bar already reads the dog and moves (at half rate because turbo halves incoming stun), so no frozen bar could be reproduced and nothing was changed for them"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Turbo Junkdog - Spiked' (and 4 similar) - from my own wrong config-name guesses while spawning, not from the change"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.35,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-spiked-stun-filling-90",
+      "caption": "Junkdog Spiked from the side: the mint stun line is filled about a third of the way in from the right end of the bar under the health bar, so the bar now moves with stun"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-spiked-stun-filling-0",
+      "caption": "Junkdog Spiked from another yaw; bar turned to the camera (temporary, not saved)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog-spiked-stun-filling-180",
+      "caption": "Junkdog Spiked from behind, bar turned to the camera"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-spiked-stun-filling-270",
+      "caption": "Junkdog Spiked from the other side, bar turned to the camera"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-turbo-junkdog-armored-stun-filling-90",
+      "caption": "Turbo Junkdog Armored with blue turbo trails, turbo icon and a short mint stun line at the right end of the bar (half stun from turbo), so it moves"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-turbo-junkdog-armored-stun-filling-0",
+      "caption": "Turbo Junkdog Armored from another yaw"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-turbo-junkdog-armored-stun-filling-180",
+      "caption": "Turbo Junkdog Armored from behind"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-jungledog-armored-left-stun-filling-90",
+      "caption": "JungleDog Armored-Left: mint stun line filled from the right end of the bar"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-jungledog-armored-left-stun-filling-0",
+      "caption": "JungleDog Armored-Left from another yaw"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-close-jungledog-armored-left-stun-filling-180",
+      "caption": "JungleDog Armored-Left from behind"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-bloodhound-stun-filling-90",
+      "caption": "Regression: Bloodhound (front) and base Junkdog (back right) both show the mint stun line on their bars, unchanged"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-junkdog-stun-filling-90",
+      "caption": "Regression: base Junkdog with its stun line"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-jungledog-stun-filling-90",
+      "caption": "Regression: base JungleDog (wide position search reported the view blocked)"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-jungledog-stun-filling-45",
+      "caption": "Regression set of the three working dogs from far away (very wide because they had spread out)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-jungledog-armored-left-stun-filling-90",
+      "caption": "Arena view: several dogs in the scene, each bar with a mint stun line under the health bar"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-junkdog-spiked-turbo-armored-stun-filling-45",
+      "caption": "Arena view around Junkdog Spiked and Turbo Junkdog Armored from far away"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-jungledog-stun-filling-135",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-jungledog-stun-filling-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "isolated-wide-regression-check-junkdog-bloodhound-jungledog-stun-filling-315",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "non-isolated-wide-jungledog-armored-left-stun-filling-270",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "non-isolated-wide-junkdog-spiked-turbo-armored-stun-filling-135",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_22.webp",
+      "name": "non-isolated-wide-junkdog-spiked-turbo-armored-stun-filling-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_23.webp",
+      "name": "non-isolated-wide-junkdog-spiked-turbo-armored-stun-filling-315",
+      "caption": ""
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "a90d2048-5362-47e9-bfe2-7d949e55fa75",
+  "session_job_result": "success",
+  "github_run_id": "37298620319",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37298620319",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1LeT0vUrUPs0yevUkU74v3XkR0kDYJaeb"
+}

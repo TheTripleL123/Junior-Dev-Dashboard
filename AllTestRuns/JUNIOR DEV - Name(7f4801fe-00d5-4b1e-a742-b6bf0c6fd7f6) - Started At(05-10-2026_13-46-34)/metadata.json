@@ -1,0 +1,145 @@
+{
+  "test_name": "Stun Lock addon not overheating enemies in left arm - 7f4801fe-00d5-4b1e-a742-b6bf0c6fd7f6",
+  "timestamp": "05-10-2026_13-46-34",
+  "finished_at": "05-10-2026_14-05-55",
+  "duration_minutes": 19,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Stun Lock only converted a stun when a hit from its own arm filled the stun bar. An enemy the arm threw or punched into a wall got stunned by the crash without overheating. The game already links such crashes back to the arm that last held, hit or threw the enemy (the same connection Z-Bang and Blastwave props use), but the stun created on the crash dropped that link. The stun now keeps it, and Stun Lock's damage modifier has a new option (on for Stun Lock, off by default for everything else) to apply to those connected stuns. In the editor, a crash stun on a Junkdog last hit by the left arm (Stun Lock there) gave stun and overheat of equal length; the same crash linked to the right arm, or to nothing, gave stun only. A direct left punch still converted once, not doubled.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 2\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\nok but other addons like bloody mess can work with throws, we have ways to connect interactions \"in hindsight\", is there an elegant way to do it here?implement the solution\n\nEXTRA (found on the card):\nThread: Amit instructed to investigate and fix, explicitly not to use /conversations or any other tool that shows previous conversations/solutions.\nThread: Amit notes other addons like \"bloody mess\" can work with throws, and that there are existing ways to connect interactions \"in hindsight\" - asks if there's an elegant way to do similarly here, and to implement the solution.",
+  "commit_ref": "master",
+  "commit_sha": "45e31c82022d48156d58340d7883eb677d338073",
+  "work_branch": "Automations/ClaudeJuniorDev/7f4801fe-00d5-4b1e-a742-b6bf0c6fd7f6",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/77",
+  "files_changed": [
+    "Assets/Scripts/Combat/General/GameEntity/GameEntity.cs",
+    "Assets/Scripts/Combat/Entities/EntityBehaviours/DamageHandler.cs",
+    "Assets/Scripts/Combat/Entities/EntityBehaviours/DamageModifier.cs",
+    "Assets/Scripts/Run/Items/Implementations/OverStun.cs",
+    "Assets/_Content/Items/Addons/Act 2/Addon - Stun Crashers.asset"
+  ],
+  "verified": [
+    "Left-arm punch sets the Junkdog's CrashBehaviour.lastInteractedBy to the left baton effector (right punch -> right effector)",
+    "Crash stun connected to the left arm (FromADistance): Junkdog stunned 1.19s and overheated 1.19s, red body with flame and stun icons",
+    "Crash stun connected to the right arm (no Stun Lock): stunned, not overheated",
+    "Direct left-arm punch filling the stun bar: stun 1.19s and overheat 1.19s - converted once, not doubled",
+    "Crash stun with no connected entity: stunned, not overheated"
+  ],
+  "not_done": [
+    "No real physics throw - the crash interaction was submitted from code with the connected entity CrashBehaviour.SetRemoteEntity would set; the lastInteractedBy tracking itself was real",
+    "Jack and the Focused Blaster shockwave were not tested in this session (the previous session saw the shockwave convert already)",
+    "Over Stun (duration addon, same script) not opted in - indirect stuns are converted at base duration when it shares the arm"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Entity Junkdog 102 (JunkDog) timed out in arena safety trigger (test setup: a dog moved off the arena by hand)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.75,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog105-left-arm-crash-stun-stunned-overheated-0",
+      "caption": "Junkdog 105 after a crash stun linked to the left arm: red-orange overheat body, flame and stun icons on the bar - Stun Lock converted it"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog105-left-arm-crash-stun-stunned-overheated-120",
+      "caption": "Junkdog 105 from the side, same paused frame - overheat tint over the whole body"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog105-left-arm-crash-stun-stunned-overheated-200",
+      "caption": "Junkdog 105 from behind-left, overheated and stunned"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog105-left-arm-crash-stun-stunned-overheated-300",
+      "caption": "Junkdog 105 low angle, overheated and stunned"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-junkdog106-right-arm-crash-stun-control-stunned-only-0",
+      "caption": "Control: Junkdog 106, crash stun linked to the right arm (no Stun Lock) - normal green body, stun icon only"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-junkdog106-right-arm-crash-stun-control-stunned-only-240",
+      "caption": "Control Junkdog 106 from another angle - no overheat tint"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-107-left-punch-overheated-108-env-crash-stunned-only-210",
+      "caption": "Regression: Junkdog 107 (direct left punch) red with flame + stun icons, Junkdog 108 (crash with no connected entity) stun icon only"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-107-left-punch-overheated-108-env-crash-stunned-only-30",
+      "caption": "Regression pair 107/108 from the opposite side"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-105L-106R-107punch-108env-0",
+      "caption": "All four test dogs isolated, wide: two overheated (105, 107), two stun-only (106, 108)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-105L-106R-107punch-108env-60",
+      "caption": "All four test dogs isolated, wide, second angle"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-105L-106R-107punch-108env-160",
+      "caption": "All four test dogs isolated, wide, third angle"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-105L-106R-107punch-108env-320",
+      "caption": "All four test dogs isolated, wide, fourth angle"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-four-junkdogs-stun-test-45",
+      "caption": "The four dogs in the Quick Rampage arena, unisolated"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-four-junkdogs-stun-test-135",
+      "caption": "Arena view of the test area, second angle"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-four-junkdogs-stun-test-225",
+      "caption": "Arena view of the test area, third angle"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-four-junkdogs-stun-test-315",
+      "caption": "Arena view of the test area, fourth angle"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "non-isolated-wide-junkdog105-left-arm-crash-stun-90",
+      "caption": "Junkdog 105 in the arena, wide"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "c3e1d9e0-4eea-49db-a177-d1c7c9a5206f",
+  "session_job_result": "success",
+  "github_run_id": "37318557119",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37318557119",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1_Q5DH9bfeIudcQMlMd6dfruwMAv4JUEZ"
+}

@@ -1,0 +1,122 @@
+{
+  "test_name": "GymBotArea bot spawn click race between clients - 3c4d898e-ff3e-411a-be6b-78e912513b5b",
+  "timestamp": "05-10-2026_18-34-30",
+  "finished_at": "05-10-2026_18-56-22",
+  "duration_minutes": 22,
+  "started_by": "Nisan",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Both clients spawned a bot because the gym area's spawn claim was a plain property write that each client believed straight away. The claim is now an entry in a StringKeyDictionary on the area's model. A client spawns only after the server accepts its insert; the server rejects the second of two concurrent inserts, so the other client gets a rejection and does not spawn. In the GYM level two same-frame inserts came back accepted/rejected, two same-frame Spawn presses produced exactly one bot, and kill-then-respawn still works. The actual two-client simultaneous press was not run: this machine has no Multiplayer Play Mode second player set up. One edge case remains: if the losing client ends up owning the area, the winner's claim is not cleared early and lapses after 3 seconds.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: GymBotArea Bot Spawn click race\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Nisan):\nUtilize StringKeyDictionary to make sure One client spawned a  mech and the other will get a rejection when trying to use this dictionary.\nWe might use other way if you can think of\n\nEXTRA (found on the card):\nCommit 1c736658e2: \"Room-unique NPC mech indices + purge departed clients' client objects\"\nCommit acf9038926: \"Shared NPC mech registry bucket + NPC parts follow the root's owner\"\nCommit eb9b111374: \"VRPluginSync: input source is always injected, registers with its mech index\"\nCommit 84d58f5227: \"Use the same root object for npc vr plugins\"\nCommit c694d19f4c: \"NPC input syncs through its own VRPluginSync, one input path for every mech\"\nCommit bd85b66b53: \"NPC Learn guides\"\n\nAttachments:\n- Commit 1c736658e2 (one-hamsa/underdogs): Room-unique NPC mech indices + purge departed clients' client objects \u2014 https://github.com/one-hamsa/underdogs/commit/1c736658e2159077ae4084cca321a5c5d2bcf091\n- Commit acf9038926 (one-hamsa/underdogs): Shared NPC mech registry bucket + NPC parts follow the root's owner \u2014 https://github.com/one-hamsa/underdogs/commit/acf9038926d6000478b7f1d3178ee9884f5a08d4\n- Commit eb9b111374 (one-hamsa/underdogs): VRPluginSync: input source is always injected, registers with its mech index \u2014 https://github.com/one-hamsa/underdogs/commit/eb9b111374bc07c4c510fb4a26b6ceb028f5d93a\n- Commit 84d58f5227 (one-hamsa/underdogs): Use the same root object for npc vr plugins \u2014 https://github.com/one-hamsa/underdogs/commit/84d58f52273e93e37165a7aa7506a64c4d1cc8b9\n- Commit c694d19f4c (one-hamsa/underdogs): NPC input syncs through its own VRPluginSync, one input path for every mech \u2014 https://github.com/one-hamsa/underdogs/commit/c694d19f4c9be2b28f6dd291e3dc995664037587\n- Commit bd85b66b53 (one-hamsa/underdogs): NPC Learn guides \u2014 https://github.com/one-hamsa/underdogs/commit/bd85b66b53be3c5d206ee819e791d3903e1a51be",
+  "commit_ref": "master",
+  "commit_sha": "899927c224cc243563a868d7b92c1293a4865bbd",
+  "work_branch": "Automations/ClaudeJuniorDev/3c4d898e-ff3e-411a-be6b-78e912513b5b",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/85",
+  "files_changed": [
+    "Assets/__Multiplayer/Scripts/MpGym/GymBotArea.cs",
+    ".claude/guides/systems/multiplayer/npc-mechs.md",
+    ".claude/guides/systems/multiplayer/realtime-models.md"
+  ],
+  "verified": [
+    "Two same-frame inserts of the spawn claim: server accepted the first and rejected the second",
+    "Two same-frame Spawn presses on GymBotArea spawn exactly one NPC bot; claim entry removed after the spawn; button shows KILL",
+    "Kill then Spawn again spawns one new bot (regression)",
+    "No ObjectDisposedException from the claim's timeout after the fix round"
+  ],
+  "not_done": [
+    "Two different clients pressing Spawn simultaneously - no MPPM virtual player available on this machine",
+    "Edge case left as is: a losing client that ends up owning the area makes the winner's claim removal fail; the claim lapses after spawnClaimDuration",
+    "NPCMechSpawnManager.TryInsertAsync has the same disposed-CTS timer exception; not changed"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/GYM"
+  ],
+  "console_errors": [
+    "System.ObjectDisposedException: The CancellationTokenSource has been disposed. (CancelAfterSlim timer; timing matches NPCMechSpawnManager's 10s allocation timeout, pre-existing)",
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no microphone on the cloud machine, boot-time)",
+    "Initial State Off for node Cage Button - Twins is not part of node's states, selecting arbitrary (boot-time)"
+  ],
+  "fix_rounds": 1,
+  "agent_cost_usd": 3.26,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-gym-area-one-bot-after-double-press-180",
+      "caption": "Bot Area after two same-frame Spawn presses: one Proteza NPC on the pad, main button reads KILL"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-gym-area-one-bot-after-double-press-90",
+      "caption": "Same state from the side - a single bot, no second mech"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-gym-area-one-bot-after-double-press-270",
+      "caption": "Same state from the opposite side - one bot on the pad"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-gym-area-one-bot-after-double-press-0",
+      "caption": "Same state from the front"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-gym-area-one-bot-after-double-press-135",
+      "caption": "Same state from a diagonal"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "non-isolated-wide-gym-area-one-bot-after-double-press-45",
+      "caption": "Gym around the area, not isolated - one NPC bot at the area, the player mech farther off"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "non-isolated-wide-gym-area-one-bot-after-double-press-135",
+      "caption": "Gym wide from another side - no second bot anywhere around the area"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "non-isolated-wide-gym-area-one-bot-after-double-press-225",
+      "caption": "Gym wide, third side"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-gym-area-one-bot-after-double-press-315",
+      "caption": "Gym wide, fourth side"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-gym-area-respawn-after-kill-45",
+      "caption": "Regression: after Kill then Spawn, one new bot stands on the pad"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-gym-area-respawn-after-kill-135",
+      "caption": "Regression respawn from another side - single bot"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-gym-area-respawn-after-kill-225",
+      "caption": "Regression respawn, third side"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-gym-area-respawn-after-kill-315",
+      "caption": "Regression respawn, fourth side"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "62d43408-32c3-4277-a667-7af2e266c7f6",
+  "session_job_result": "success",
+  "github_run_id": "37356218622",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37356218622",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1cYtcyIe4Lx5ZurO8LTjLlROvj-LfOItD"
+}

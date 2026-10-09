@@ -1,0 +1,150 @@
+{
+  "test_name": "ICBTH and Bloodymess block Rumble Crackers activation - ac7c8302-21a8-4c59-a096-27cca209e6fa",
+  "timestamp": "05-10-2026_16-50-33",
+  "finished_at": "05-10-2026_17-09-40",
+  "duration_minutes": 19,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "The ICBTH and Bloody Mess part prefabs, which attach to the arm, each tagged every outgoing hit from that arm with tag value 6. That value used to mean 'BloodyMess', but in 2023 the enum entry was replaced with 'GarageInteraction'. From then on every hit from an arm holding either addon counted as a garage-preview hit, and Rumble Crackers ignores those, so slamming the ground never gave Turbo. The same mistag also silenced other items that skip garage hits (Overdrivers, Turbo Defense System, Hot/Stun/Precision Engineering quirks). I removed the stale tag component from both prefabs. In play mode, a ground hit with Rumble Crackers + Bloody Mess on the left arm and Rumble Crackers + ICBTH on the right arm now puts both arms into Turbo. Putting the old tag back on one arm at runtime brought the bug back on that arm only, which confirms the cause.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * ICBTH + Bloodymess are buggy - they prevent Rumble Crackers from activating\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\ninvestigate and fix\n\nEXTRA (found on the card):\nThread mentions related item ID {67a16041-5469-4052-ab97-c8197b378d26} that Omer asked to investigate for root cause.",
+  "commit_ref": "master",
+  "commit_sha": "66ec5fc71e7253f137ab102e25704f50ea79eb1b",
+  "work_branch": "Automations/ClaudeJuniorDev/ac7c8302-21a8-4c59-a096-27cca209e6fa",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/81",
+  "files_changed": [
+    "Assets/_Content/Items/Addons/Prefabs/BloodyMess.prefab",
+    "Assets/_Content/Items/Addons/Prefabs/ICBTH.prefab"
+  ],
+  "verified": [
+    "Rumble Crackers + Bloody Mess on the left arm: ground hit from code -> arm Turbo, PWR 3 to 4, blue Turbo glow",
+    "Rumble Crackers + ICBTH on the right arm: ground hit from code -> arm Turbo, PWR 3 to 4, blue Turbo glow",
+    "Cause check: re-adding a GarageInteraction outgoing tag handler on the left arm at runtime -> no Turbo on that arm, right arm still Turbo",
+    "Arms keep only their own LeftArm/RightArm tag handlers after the fix",
+    "No console errors from the scenario"
+  ],
+  "not_done": [
+    "Not verified: whether Bloody Mess's gore explosion still triggers on killing blows (its code doesn't read the removed tag)",
+    "Not fixed: separate ICBTH bug - it declares remoteEntityFlag instead of overriding connectedEntityModifyType, so its explosion probably never fires; unrelated to Rumble Crackers and changes gameplay, left for a separate decision",
+    "Not checked: related item ID {67a16041-5469-4052-ab97-c8197b378d26} from the card thread"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.33,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-left-arm-rc-bloodymess-turbo-90",
+      "caption": "Left arm (Rumble Crackers + Bloody Mess) after a ground hit, covered in blue electric Turbo trails - Rumble Crackers fired"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-left-arm-rc-bloodymess-turbo-200",
+      "caption": "Same left arm from another side, Turbo glow along the forearm"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-left-arm-rc-bloodymess-turbo-300",
+      "caption": "Left arm from behind, still in Turbo"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-right-arm-rc-icbth-turbo-90",
+      "caption": "Right arm (Rumble Crackers + ICBTH) after a ground hit, blue electric Turbo trails along the arm - Rumble Crackers fired"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-right-arm-rc-icbth-turbo-200",
+      "caption": "Right arm from another side, Turbo glow"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-right-arm-rc-icbth-turbo-300",
+      "caption": "Right arm from behind, still in Turbo"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-both-arms-turbo-45",
+      "caption": "Both arms isolated, wide, both in Turbo after the ground hit"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-both-arms-turbo-135",
+      "caption": "Both arms isolated, wide, other angle, both in Turbo"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-both-arms-turbo-225",
+      "caption": "Both arms isolated, wide, rear angle, both in Turbo"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-both-arms-turbo-45",
+      "caption": "Mech arms in the Quick Rampage arena, wide, during Turbo"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "non-isolated-wide-both-arms-turbo-135",
+      "caption": "Arena wide view from another side during Turbo"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "non-isolated-wide-both-arms-turbo-225",
+      "caption": "Arena wide view from behind during Turbo"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-close-left-arm-old-garage-tag-readded-no-turbo-90",
+      "caption": "Cause check: left arm with the old GarageInteraction tag handler re-added at runtime (not saved) after a ground hit - no Turbo glow"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-close-left-arm-old-garage-tag-readded-no-turbo-200",
+      "caption": "Cause check: same left arm from another side, no Turbo"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-wide-regression-check-left-old-tag-no-turbo-right-turbo-45",
+      "caption": "Cause check: both arms wide - left (old tag re-added) without Turbo, right (fixed prefab) with Turbo"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-wide-regression-check-left-old-tag-no-turbo-right-turbo-135",
+      "caption": "Cause check: same contrast from another angle"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "non-isolated-wide-left-old-tag-no-turbo-right-turbo-315",
+      "caption": "Cause check in the arena, wide: left arm without Turbo, right arm with Turbo"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "non-isolated-wide-both-arms-turbo-session2-0",
+      "caption": "Second play session, same setup: both arms in Turbo after the ground hit, arena wide"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "non-isolated-wide-both-arms-turbo-session2-270",
+      "caption": "Second play session, arena wide from the side, both arms in Turbo"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "08bd95f6-4815-4411-80bb-8d78e5da816b",
+  "session_job_result": "success",
+  "github_run_id": "37343098893",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37343098893",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1cZKsEWWcB-DXuXqRsi_jlD8XtIq8cC74"
+}

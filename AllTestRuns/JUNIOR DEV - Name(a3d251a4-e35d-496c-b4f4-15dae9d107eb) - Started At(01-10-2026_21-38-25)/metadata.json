@@ -1,0 +1,146 @@
+{
+  "test_name": "a3d251a4-e35d-496c-b4f4-15dae9d107eb",
+  "timestamp": "01-10-2026_21-38-25",
+  "finished_at": "01-10-2026_22-06-24",
+  "duration_minutes": 28,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "BotHealthBar.Setup took its stun source from GetComponentInParent<IStunComponent>(), which returned the EntityProxy objects that JunkDogSpikes (RibCage) and ArmorEntity (PhysicsRig) add above the bar on Spiked/Armored variants; proxies never accumulate stun, so the bar stayed at 0. The bar now uses the entity already resolved via GameEntity.GetEntity (skips proxies), identical to before for dogs without proxies. Verified in SP Quick Rampage: on all spawned junkdog/jungledog variants the bar binds to the root dog, fills under partial stun damage (applied via AddStunDamage from the bridge), and switches to stun-duration display when the dog becomes stunned; base Junkdog/Bloodhound/base JungleDog unchanged. 18 captures, check-captures OK, no new console errors.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "There is a bug affecting the stun mechanic for certain singleplayer enemies: their on-screen stun bar/meter does not visibly fill or update as they are hit, yet after a number of hits the enemy does still become stunned. This suggests the underlying stun accumulation logic is working, but the UI/visual representation of the stun bar for these enemies is not being updated or wired up correctly.\n\nThe enemies affected are:\n1. All \"junkdog\" enemy variants EXCEPT the base junkdog and the bloodhound junkdog (those two work correctly).\n2. All \"jungledog\" enemy variants EXCEPT the normal/base jungledog (that one works correctly).\n\nSince the base/default variants of each enemy family work correctly but the other variants in the same family do not, focus your investigation on what differs between the working variant and the broken variants for each enemy family \u2014 e.g., differences in prefab setup, subclassing/inheritance, component references, overrides of stun-related methods or fields, or any variant-specific initialization that might skip wiring up the stun bar UI element to the underlying stun value.\n\nInvestigate the enemy classes/prefabs for junkdog and jungledog variants, find where the stun bar UI is updated for the working base variants versus the non-working variants, identify the root cause of why the stun bar fails to update for the affected variants, and fix it so that for every junkdog and jungledog variant, the stun bar correctly reflects the enemy's current stun accumulation as it is hit, consistent with the working base/bloodhound variants.\n\nAfter fixing, verify in singleplayer that each of the listed broken enemy variants now shows a stun bar that visibly fills up as it takes hits, and that it still becomes stunned at the appropriate point, matching the behavior of the already-working base junkdog, bloodhound junkdog, and base jungledog.\n\nNote: do not rely on reviewing commit history, diffs, or prior conversation logs to find the cause \u2014 work from the current state of the code and repo structure only.",
+  "commit_ref": "master",
+  "commit_sha": "618266a0e786a660d50dac5a9ec34cff07af1199",
+  "work_branch": "Automations/ClaudeJuniorDev/a3d251a4-e35d-496c-b4f4-15dae9d107eb",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/64",
+  "files_changed": [
+    "Assets/Scripts/Combat/UI/BotHealthBar.cs"
+  ],
+  "verified": [
+    "Bar stun source resolves to root dog on Junkdog Spiked/Armored Both/Armored Left/Armored Right/Turbo and JungleDog Spiked/Armored Left/Armored Right (previously nearest parent was EntityProxy on the proxied variants)",
+    "Stun bar fills at 45%/80% stun damage on Junkdog Spiked, Junkdog Armored, JungleDog Spiked, Armored-Left/Right",
+    "Dogs become stunned past stunBufferSize and bar switches to stun-duration display",
+    "Regression: base Junkdog, Bloodhound, base JungleDog still bind to root, fill and stun"
+  ],
+  "not_done": [
+    "JungleDog Armored Both not tested - its debug spawn action fails with 'Could not find prefab' (unrelated)",
+    "Turbo Spiked/Turbo Armored variants not spawned (same proxies, same fix path)",
+    "Stun applied via AddStunDamage from bridge, not real punches in VR",
+    "MP PlayerHealthBar has the same lookup; left alone (out of scope)"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "Could not find prefab: 'Jungledog Armored Both' (debug spawn action, unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 4.52,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "scene-close-junkdog-spiked-before",
+      "caption": "Junkdog - Spiked before stun damage: stun line under health bar empty"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "iso-close-junkdog-spiked-before",
+      "caption": "Junkdog - Spiked isolated, before stun: stun line empty"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "scene-close-junkdog-spiked-after",
+      "caption": "Junkdog - Spiked after 80% stun damage: stun line ~70% filled (was broken before fix)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "iso-close-junkdog-spiked-after",
+      "caption": "Junkdog - Spiked isolated after stun damage: bar filled"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "scene-wide-junkdog-spiked-after",
+      "caption": "Junkdog - Spiked wide in arena with filled stun bar"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "scene-close-junkdog-armored-after",
+      "caption": "Junkdog Armored (front) with stun line filled, alongside other dogs"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "iso-close-junkdog-armored-after",
+      "caption": "Junkdog Armored isolated: stun line ~70% filled (EntityProxy on PhysicsRig no longer read)"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "scene-wide-junkdog-armored-after",
+      "caption": "Junkdog Armored wide in arena after stun damage"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "scene-close-jungledog-spiked-after",
+      "caption": "JungleDog - Spiked (left) with stun line filled, other dogs in background"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "iso-close-jungledog-spiked-after",
+      "caption": "JungleDog - Spiked isolated close-up: stun line ~70% filled"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "scene-wide-jungledog-spiked-after",
+      "caption": "JungleDog - Spiked wide (partially blocked view)"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "scene-close-junkdog-spiked-stunned",
+      "caption": "After pushing past stunBufferSize: dogs show stun icons, bars in stun-duration mode"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "scene-close-regression-junkdog-base-stunned",
+      "caption": "Regression: base Junkdog stunned state (loose framing)"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "scene-close-regression-bloodhound-stunned",
+      "caption": "Regression: Bloodhound stunned state (loose framing)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "iso-close-junkdog-armored-left-filled",
+      "caption": "Junkdog Armored-Left isolated with partially filled stun line"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "iso-close-jungledog-armored-right-filled",
+      "caption": "JungleDog Armored-Right isolated with partially filled stun line"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "scene-wide-junkdog-armored-left-filled",
+      "caption": "Junkdog Armored-Left (right side, yellow) top view with filled stun line"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "scene-wide-jungledog-armored-right-filled",
+      "caption": "JungleDog Armored-Right top view among dogs, stun lines visible"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "06c19118-5df1-4620-88d0-2e07552bc0e2",
+  "session_job_result": "success",
+  "github_run_id": "36929473567",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/36929473567",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1TWiTSGopvpb75c1QvpiHarytQ3YOFZMk"
+}

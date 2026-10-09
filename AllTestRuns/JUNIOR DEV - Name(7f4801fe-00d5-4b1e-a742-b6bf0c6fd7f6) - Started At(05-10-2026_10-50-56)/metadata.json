@@ -1,0 +1,51 @@
+{
+  "test_name": "Stun Lock overheat fails in left arm socket - 7f4801fe-00d5-4b1e-a742-b6bf0c6fd7f6",
+  "timestamp": "05-10-2026_10-50-56",
+  "finished_at": "05-10-2026_11-15-13",
+  "duration_minutes": 24,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "aborted",
+  "partial": false,
+  "summary": "Stun Lock (Addon - Stun Crashers) turns a stun that the item's own arm causes into an overheat of the same length. I set up the reported case in Play mode: Stun Lock on the left arm, then left-arm punches and Focused Blaster blast waves (blaster on the left arm) against a Junkdog and a Jack. Every time one of those hits filled the stun bar, the enemy was stunned and overheated together for the full stun (Junkdog 1.5 s). Jack body hits worked the same way. The only stun without overheat came from an arena floor spike. That is an environment stun, which Stun Lock is not meant to affect. I could not reproduce the bug or find a cause in the code, so I changed nothing.",
+  "abort_reason": "cause not found",
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 2\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\ninvestigate and fix, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT LETS YOU SEE PREVIOUS CONVERSATIONS AND SOLUTIONS",
+  "commit_ref": "master",
+  "commit_sha": "cb136001353649b59f8b18173dd481b911d9f941",
+  "work_branch": "Automations/ClaudeJuniorDev/7f4801fe-00d5-4b1e-a742-b6bf0c6fd7f6",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Stun Lock on ArmLeft (loadout plus mech rebuild) adds an Outgoing Stun->Overheat DamageModifier on Mech Arm - Swinger_Left",
+    "Left-arm punches that fill a Junkdog's stun bar: Stun 1.5 s plus Overheat 1.5 s applied, bot stunned and overheated",
+    "Focused Blaster on EffectorLeft, real slam path: Shockwave hits that fill a Junkdog's stun bar give Stun 1.5 s plus Overheat 1.5 s",
+    "Jack body-hit stuns: stunned and overheated together, ending together",
+    "Real punch source SP_PlayerPunchBehavior is on the effector under the arm, so it goes through the same check as the tested hits"
+  ],
+  "not_done": [
+    "cause not found: Stun Lock not overheating stunned enemies with Stun Lock in the left arm socket - read OverStun, DamageModifier, GameEntity.AddStunDamage/Stun/PropagateStatusEffects, DamageHandler, SP_PlayerPunchBehavior. At runtime, left punches and Focused Blaster blast waves overheated every enemy they stunned (Junkdog, Jack). The report did not reproduce, so there is no cause to fix.",
+    "cause not found: Focused Blaster blast wave stuns not overheating - with the blaster on the left arm, blast-wave stuns were overheated at runtime. Untested reading: blaster on the right arm, where Stun Lock on the left arm does not apply by design.",
+    "Jack head (face) hits were not sent at runtime. Jack body hits and Junkdog hits already worked, so the 'only Jack face hits work' difference was not observed."
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.7,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "9418e89e-85c8-49db-bce1-bcbbb9470980",
+  "session_job_result": "success",
+  "github_run_id": "37298626326",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37298626326",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/18qZ1zRkkSOlvUV0zo6r496GcY-QBsdUq"
+}

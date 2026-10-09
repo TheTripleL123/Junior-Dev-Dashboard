@@ -1,0 +1,131 @@
+{
+  "test_name": "Stun Lock overheat fails in left arm socket - 7add1379-f475-4d80-acac-c5d4c6e19482",
+  "timestamp": "04-10-2026_19-05-25",
+  "finished_at": "04-10-2026_19-30-27",
+  "duration_minutes": 25,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Punches and Focused Blaster blastwaves rarely fill a bot's stun meter by themselves. It is usually the bot's crash after being knocked back that finishes the stun. That crash stun was credited to the bot itself, not to the player, so Stun Lock on the arm never saw it and the bot was stunned without overheating. A Jack hit in the face worked because that hit fills the meter on its own. I changed DamageHandler so a crash stun is credited to whoever launched or held the bot, which the crash already records. In the editor, a weak left-arm punch plus a launch now stuns and overheats a Junkdog through the crash. A Jack filled by a direct hit is also stunned and overheated. A bot stunned without the player involved is still stunned but not overheated.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: * Stun Lock (Stunned enemies = Overheated) do not work, in Left arm socket.  Only Jacks geting overheat after hit in a face. And it is also tru for the blast wave hit of focused blaster. - consistency test 1\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\ninvestigate and fix the bug, DO NOT USE /CONVERSATIONS OR ANY OTHER TOOL THAT GIVES YOU ACCESS TO PREVIOUS SESSIONS OF ANY OTHER PEOPLE IN THE REPO",
+  "commit_ref": "master",
+  "commit_sha": "4c90a61cc3edebf52e6785a79e1bdddce4b6ec3d",
+  "work_branch": "Automations/ClaudeJuniorDev/7add1379-f475-4d80-acac-c5d4c6e19482",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/72",
+  "files_changed": [
+    "Assets/Scripts/Combat/Entities/EntityBehaviours/DamageHandler.cs"
+  ],
+  "verified": [
+    "Junkdog launched by a weak left-arm punch (Focused Blaster effector, Stun Lock on ArmLeft): crash fills the stun buffer, stun interaction sourced from the left effector, bot stunned and overheated (red body, both icons)",
+    "Jack stun buffer filled directly by a left-arm hit: stunned and overheated",
+    "JungleDog stunned by an Environment-sourced hit: stunned, no overheat"
+  ],
+  "not_done": [
+    "Jack crash-filled stun: the launch on Jack produced no crash interaction, so only the direct fill was tested on Jack",
+    "Blastwave not run end to end after the fix; its knockback crash goes through the same CrashBehaviour path that was verified",
+    "Right arm socket not tested (same code path)",
+    "Grab/throw (DirectContact) crash stuns not tested"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "System.NullReferenceException at SP_PlayerPunchBehavior.cs:403 (debug log reading destinationCollider.name of the test punch built without colliders)",
+    "Found locked collision ignore pair who's colliders were destroyed (PhysicsIgnore.cs:668)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 5.34,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-junkdog-crash-stun-overheat-90",
+      "caption": "Junkdog after the crash stun, framed too far: small red body with stun and flame icons on its bar"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-junkdog-crash-stun-overheat-0",
+      "caption": "Junkdog lying limp after the crash: whole body red with smoke, mint stun icon and orange flame icon on the bar, stun line blue - stun and overheat together from a crash-filled stun"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-junkdog-crash-stun-overheat-120",
+      "caption": "Same Junkdog from another side during the stun window, bar facing the camera"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-junkdog-crash-stun-overheat-240",
+      "caption": "Same Junkdog from the rear side during the stun window"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "non-isolated-wide-junkdog-crash-stun-overheat-45",
+      "caption": "Wide view of the arena around the stunned Junkdog"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "non-isolated-wide-junkdog-crash-stun-overheat-200",
+      "caption": "Wide view of the arena around the stunned Junkdog, other side"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-jack-direct-stun-overheat-0",
+      "caption": "Jack after a direct buffer-filling left-arm hit, seen from the front"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-jack-direct-stun-overheat-120",
+      "caption": "Jack slumped, body glowing red-orange with smoke, stun and flame icons on its bar - direct fill still stuns and overheats"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-jack-direct-stun-overheat-240",
+      "caption": "Jack from the other side during the same stun"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-jack-direct-stun-overheat-90",
+      "caption": "Wide view of the arena around the stunned Jack"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-jungledog-env-stun-no-overheat-close90",
+      "caption": "Regression: JungleDog (left, green) stunned by an Environment-sourced hit shows no red tint; Junkdog (right) neutral. JungleDog's bar is at an angle, so its stun icon is not readable"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-jungledog-env-stun-no-overheat-0",
+      "caption": "Regression set wide: JungleDog and Junkdog, no overheat tint on either"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-jungledog-env-stun-no-overheat-180",
+      "caption": "Regression set wide from the opposite side"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-jungledog-env-stun-no-overheat-270",
+      "caption": "Regression set wide from the side"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-jungledog-env-stun-no-overheat-135",
+      "caption": "Wide view of the arena around the regression JungleDog"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "0d6847e2-1cfd-4f50-b081-2fdc4b36af67",
+  "session_job_result": "success",
+  "github_run_id": "37226653083",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37226653083",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1YFjfUGcuVY4JoarPRuaqSzPZaDFZuDFF"
+}

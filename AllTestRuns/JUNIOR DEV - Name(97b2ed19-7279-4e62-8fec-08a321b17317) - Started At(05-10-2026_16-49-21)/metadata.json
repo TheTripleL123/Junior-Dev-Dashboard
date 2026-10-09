@@ -1,0 +1,152 @@
+{
+  "test_name": "Arm addons swapped to body slot apply to both arms - 97b2ed19-7279-4e62-8fec-08a321b17317",
+  "timestamp": "05-10-2026_16-49-21",
+  "finished_at": "05-10-2026_17-07-56",
+  "duration_minutes": 19,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "The loadout UI only checked that the dragged addon fits the slot it is dropped on. When that slot was occupied, the swap moved the displaced addon into the dragged addon's old slot without any check. Addons allowed on both arm and body (Weight Pack, Gash Bang, Magshot, etc.) therefore let you swap an arm-only addon (Overdrives, Megafrictor, Major Cabal) into the body, or a body-only addon (Phantom Limb, Triple Bus) onto an arm. MechUI.DetermineAction now also checks that the displaced item is allowed in the dragged item's slot for swaps between two mech slots, using the CanSwap check the inventory route already has. I verified it in the Rampage level-up shop: the body Weight Pack can no longer swap with Overdrives or Megafrictor, the arm Weight Pack can no longer swap with Phantom Limb, the loadout stays unchanged when you try, and legal swaps between arms still work.",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: [BUG] RAMPAGE: You can swap arm addons to the body, getting the benefits on both arms and none of the negatives\n\nDESCRIPTION:\n> (overdrives, mega frictor, major cabal).  Some body addons still get their benefit on an arm (phantom Limb on busted arm, triple bus, etc)\n\n<https://discord.com/channels/276104181067022336/1431327982659833896/1549131541098274878>\n\nREQUEST (from Amit):\ninvestigate and fix, do not use /conversations or any other things that lets you see previous conversations\n\nEXTRA (found on the card):\nDiscord thread link referenced in description: https://discord.com/channels/276104181067022336/1431327982659833896/1549131541098274878 (not accessible, content not retrievable here)\nThread mentions trying to repro in play mode before fixing.",
+  "commit_ref": "master",
+  "commit_sha": "66ec5fc71e7253f137ab102e25704f50ea79eb1b",
+  "work_branch": "Automations/ClaudeJuniorDev/97b2ed19-7279-4e62-8fec-08a321b17317",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/80",
+  "files_changed": [
+    "Assets/Scripts/Run/Controllers/Garage/MechUI.cs"
+  ],
+  "verified": [
+    "Body (Cockpit) Weight Pack selected: arm slots holding Overdrives and Megafrictor return None; ApplySelectedItem onto Overdrives leaves the loadout unchanged",
+    "Arm Weight Pack selected: Cockpit slot holding Phantom Limb returns None; ApplySelectedItem onto it leaves the loadout unchanged",
+    "Regression: arm Weight Pack dropped on the other arm's Overdrives still swaps; Cockpit Weight Pack and arm Weight Pack can still swap with each other; empty addon slots still Equip; with Overdrives selected, body slots are None and arm slots are Swap/Equip"
+  ],
+  "not_done": [
+    "Major Cabal and Triple Bus were not equipped in the test; they are arm-only and cockpit-only like Overdrives and Phantom Limb, so they go through the same CanSwap check",
+    "The inventory-to-slot swap was not exercised: the Rampage shop shows no inventory slots. That path is unchanged in code",
+    "Saved runs that already have an addon in the wrong slot are not migrated"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.28,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-body-weightpack-selected-arm-only-slots-dimmed-180",
+      "caption": "Back side of the shop UI, mirrored and mostly empty - a failed framing attempt, kept per the rules"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-body-weightpack-selected-arm-only-slots-dimmed-0",
+      "caption": "Level 2 shop, body Weight Pack selected (tooltip 'Add on - Arm & Cockpit'): body panel shows SWAP on Phantom Limb and EQUIP on the empty slot, the arm panel with Overdrives/Megafrictor shows no SWAP, only EQUIP on its empty slot"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-body-weightpack-selected-arm-only-slots-no-swap-15_10",
+      "caption": "Same body Weight Pack selection from slightly above - no SWAP label on the arm-only addons"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-body-weightpack-selected-arm-only-slots-no-swap--10_350",
+      "caption": "Same body Weight Pack selection from slightly below and left"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-body-weightpack-selected-arm-only-slots-no-swap-5_20",
+      "caption": "Same body Weight Pack selection from the right"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-arm-weightpack-selected-phantom-limb-no-swap-0_0",
+      "caption": "Arm Weight Pack selected: body panel shows SWAP on the body Weight Pack, no label on Phantom Limb, EQUIP on the empty slot; other arm shows SWAP SWAP EQUIP"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-arm-weightpack-selected-phantom-limb-no-swap-15_350",
+      "caption": "Same arm Weight Pack selection from above-left - Phantom Limb has no SWAP"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-arm-weightpack-selected-phantom-limb-no-swap--5_10",
+      "caption": "Same arm Weight Pack selection from slightly below-right"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-15",
+      "caption": "Regression, wide: Overdrives selected on the right arm - body addons show no labels, the arm panels still show SWAP/EQUIP (small in frame)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-0",
+      "caption": "Regression, wide, front: same Overdrives selection"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-345",
+      "caption": "Regression, wide, from the left: same Overdrives selection"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-30",
+      "caption": "Regression, wide, from the right: same Overdrives selection"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-330",
+      "caption": "Regression, wide, far left: same Overdrives selection"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-arm-overdrives-selected-arm-swaps-allowed-10",
+      "caption": "Regression, wide, slight right: same Overdrives selection"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-0",
+      "caption": "Environment: the level-up shop UI inside the Rampage arena's gorilla backdrop, no broken geometry around it"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-20",
+      "caption": "Environment from the right: arena and shop UI"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-340",
+      "caption": "Environment from the left: arena and shop UI"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-40",
+      "caption": "Environment, far right: arena and shop UI"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-320",
+      "caption": "Environment, far left: arena and shop UI"
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "non-isolated-wide-levelup-shop-arm-overdrives-selected-10",
+      "caption": "Environment, slight right: arena and shop UI"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "ce5c33f0-824e-496e-b2ec-4fc49cbda0ed",
+  "session_job_result": "success",
+  "github_run_id": "37343030902",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37343030902",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1jRTDNci-Fw1rz6InKDMG7jnEWheYylcy"
+}
