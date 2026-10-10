@@ -1,0 +1,50 @@
+{
+  "test_name": "Rumble room player cap value and enforcement - 1b84a31f-43ad-4dd1-b2ec-e96e5451f523",
+  "timestamp": "10-10-2026_13-00-11",
+  "finished_at": "10-10-2026_13-12-46",
+  "duration_minutes": 13,
+  "started_by": "Omer",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Inconclusive because the fix was tested on a local test server only, not in the game: it needs the server published and a full Rumble to see it live. The real Rumble cap was 8, not 6 - the questionnaire was right. The cap was already enforced on elevator joins, late joins, merges between rounds and rejoins, and is now 6. One gap was fixed: at round end, a room bigger than the cap moved as one group into a smaller room and nobody could take a seat. It now splits into rooms of at most 6.",
+  "job_type": "feature",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: Rumble: check that the room cap is 6 and enforced (fix if not)\n\nDESCRIPTION:\nDecided 2026-10-10 (Omer, questionnaire 16): the Rumble room cap is **6 players**, and it must be **enforced**.\n\n**Check:**\n- What is the actual cap for a Rumble (deathmatch) room today? The questionnaire says the code allows 8. Omer thinks that this premise is wrong. Find where the cap is set (server matchmaking / room joining, Globals, scene or prefab) and report the real value.\n- Is the cap enforced on every path: join from the elevator, late join during a round, room merging between rounds, rejoin after a disconnect?\n\n**If it is not 6 or not enforced:** make it 6 and enforce it on all the paths above. Merging must never make a room larger than 6.\n\nReport the result in a comment on this card.\n\nContext: Episode 01 preferred 6 mechs per level (`591373b5`). Room merging between rounds is done (card \"merge rooms with > 1 players together between rounds\").\n\nREQUEST (from Omer):\n@Big Sys Please check this one: the Rumble room cap must be 6 and enforced on every join path (elevator, late join, merge between rounds, rejoin). Find the real current value (we think \"8\" may be wrong) and report it here. If it is not 6 or not enforced, fix it. Details in the description. Thanks!\n\nEXTRA (from the card):\nOmer decided 2026-10-10, via questionnaire 16, that the Rumble room cap is 6 players and must be enforced; the questionnaire itself says the code allows 8 but Omer believes that premise is wrong. Description notes Episode 01 preferred 6 mechs per level (commit 591373b5), and room merging between rounds is already done (card \"merge rooms with > 1 players together between rounds\").\n\nJOB TYPE:\nUNSURE - junior-dev should decide from game context\n\nGAME MODE:\nMULTIPLAYER - the title and description refer to \"Rumble (deathmatch) room\", a multiplayer-only mode",
+  "commit_ref": "master",
+  "commit_sha": "7b913f4de620ea85735e8b3578b2873fb8d93130",
+  "work_branch": "Automations/ClaudeJuniorDev/1b84a31f-43ad-4dd1-b2ec-e96e5451f523",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/90",
+  "files_changed": [
+    "Cloud Code Projects/SpacetimeDB-Server-Rust/src/reducers/matchmaking.rs"
+  ],
+  "verified": [
+    "Local SpacetimeDB: a new deathmatch room is created with maxPlayers 6",
+    "Local SpacetimeDB: an 8-player room created at cap 8 is moved at round end as 6 + 2 into two 6-cap rooms, all 8 seat claims succeed",
+    "Local SpacetimeDB: a 7th player joining a full 6-player deathmatch room is refused as full",
+    "Local SpacetimeDB baseline: the old transfer code put 8 reservations into one 6-cap room and refused every claim",
+    "cargo build wasm32 release is clean"
+  ],
+  "not_done": [
+    "Live Globals deathmatch_numPlayers values on dev/staging/prod not read (would override the code value)",
+    "Server module not published (human step after review)",
+    "Commit 591373b5 not found in this clone, not compared",
+    "Rumble scenes not checked for at least 6 spawn elevators",
+    "No in-editor /qa: the change is server-only and a 7-player room cannot be set up in the editor"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 1.72,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "49dfe0a5-f003-4c00-aa4e-a51e329f3717",
+  "session_job_result": "success",
+  "github_run_id": "38053670971",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38053670971",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1nNWsdPW_uhTFYXs4JL1V2An_WLgZRCUa"
+}
