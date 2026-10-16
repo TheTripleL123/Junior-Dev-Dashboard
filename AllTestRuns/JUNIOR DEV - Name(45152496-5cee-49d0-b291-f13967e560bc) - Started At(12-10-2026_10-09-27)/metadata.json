@@ -1,0 +1,44 @@
+{
+  "test_name": "Jungle Will Kill You Ded tip missing on first run - 45152496-5cee-49d0-b291-f13967e560bc",
+  "timestamp": "12-10-2026_10-09-27",
+  "finished_at": "12-10-2026_10-27-26",
+  "duration_minutes": 18,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "aborted",
+  "partial": false,
+  "summary": "Aborted because I could not find a cause: on a brand-new save the 'jungle will kill you dead' message shows correctly in the editor. The message is gated to play once per game save, ever (not once per run or per slot), and that gate has not changed since 2024. The tutorial runs on its own graph and cannot use up the gate, and nothing on this path is specific to Steam Frame. The most likely explanation is that the Steam Frame install already had a game save from earlier play, which makes the game skip the message as designed.",
+  "job_type": "bug",
+  "abort_reason": "cause not found",
+  "failure_kind": null,
+  "instructions": "TASK: in a new run on steam-frame, you don't see 'The Jungle Will Kill You Ded'\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Amit):\n@Big Sys investigate and fix\n\nEXTRA (from the card):\nOmer noted the tip should only show on the player's first-ever run and asked if this is a regression; Amit said he's pretty sure, and that Nisan originally reported the issue.\n\nJOB TYPE:\nBUG FIX - the card has the `Bug` label\n\nGAME MODE:\nSINGLEPLAYER - the card has the `SinglePlayer` label",
+  "commit_ref": "master",
+  "commit_sha": "719f5ba7be4b2b22430c7e724fd602f740fa7828",
+  "work_branch": "Automations/JuniorDev/jungle-will-kill-you-ded-tip_38231304915",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Runtime check (Quick Tale, fresh game save, Android target): ACT I Intro loads and the 'the jungle will kill you dead' text under 'Warnings' is active - the first-time path of EntryGuard-46b0 works"
+  ],
+  "not_done": [
+    "cause not found: jungle message missing in a new run on Steam Frame - ACT I Intro.asset routes the 'Warning' scene state only through EntryGuard-46b0 (saveTo Game, resetCounterFrequency Manually = once per game save, unchanged since 2024); on a fresh save in the editor it shows. The tutorial PlayRunNode overrides the run graph with Tutorial.asset, so it never reaches ACT I Intro; '@skip cutscenes' is set only by a debug config; no STEAM_FRAME code touches the tale/save path. Not conclusive because the device's save state is unknown and the real Steam Frame build was not run."
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Tale"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.69,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "631384c7-b5ac-4fbf-8ec7-4195d1ce3dd7",
+  "session_job_result": "success",
+  "github_run_id": "38233884117",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38233884117",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1A0mVBbJC0_UpxFoZ5zju1pNP-RzirklJ"
+}

@@ -1,0 +1,109 @@
+{
+  "test_name": "Camera toolbox stays open across sandbox exit - 3e73f715-6626-4558-ab35-69b23345a93a",
+  "timestamp": "12-10-2026_11-54-28",
+  "finished_at": "12-10-2026_12-18-22",
+  "duration_minutes": 24,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed because in the editor the camera toolbox now closes itself when you press Edit in sandbox and when you leave the scene, and its pause no longer comes back when you return to play. The toolbox was never told to close on a scene change or on the switch to edit mode, so it stayed open into the main menu, and on returning to play it restored its saved 'paused' state, freezing the game and hiding the open button. It now closes the normal way in both cases, in single player only. In the test the button to open it showed again after returning to play.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: camera toolbox breaks sandbox\n\nDESCRIPTION:\n2 major issues:\n\n1. when entering sandbox and opening the camera toolbox inside, then when you exit to main menu you still have the camera toolbox there, and it lets you capture the main menu which is bad.\n2. when entering sandbox and opening the camera toolbox inside, then when you press the edit button you exit the sandbox and i can see the camera toolbox panel still open for a second then it disappears, then after you enter the sandbox again the game is frozen, you can't open the camera toolbox, and only when i open the menu again everything becomes unpaused for a moment and then paused again.\n\n&nbsp;\n\nI believe the issue is that when switching scenes(maybe only in sandbox and maybe in every SP mode) when the camera toolbox is open, it doesn't close it correctly before switching scenes which causes it to either stay or bug the game out.\n\nREQUEST (from Amit):\n@Big Sys investigate and fix again, i added more context\n\nEXTRA (from the card):\nThread shows this is a repeat request: Amit previously asked to \"investigate and fix\" and is now asking again after adding more context (the description's two issues).\n\nJOB TYPE:\nBUG FIX - card has the `Bug` label and describes two issues where existing behaviour breaks (toolbox persists into main menu, game freezes after exiting sandbox)\n\nGAME MODE:\nSINGLEPLAYER - card has the `SinglePlayer` label",
+  "commit_ref": "master",
+  "commit_sha": "fc8b04c98e300c0c38fb9b0aadc6e3b53a771157",
+  "work_branch": "Automations/JuniorDev/grips-disabled-cam-tools_38231546703",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/97",
+  "files_changed": [
+    "Assets/Scripts/Animation/Cinematic/CinematicViewer.cs"
+  ],
+  "verified": [
+    "Toolbox opened in sandbox play pauses the game (timeScale 0, IsOpen true)",
+    "Switching sandbox to Edit (TryLoadAsync Edit, as the Edit button does) closes the toolbox: IsOpen false, setting false, no TimeScale key held by the viewer",
+    "Returning to Play: toolbox stays closed, viewer holds no pause, CanOpenHere true and CameraToolboxPauseMenu.ShowButton true",
+    "Reopened toolbox then PauseMenuManager.OnExitToMainMenu: the primary scene transition closes the toolbox (IsOpen false, setting false)"
+  ],
+  "not_done": [
+    "The real main menu scene was not loaded - with the Sandbox (Play) debug config, exit reloads the sandbox; the same primary-transition close path ran",
+    "Regression (toolbox stays open in sandbox play with no transition, and across a respawn) was not exercised - respawn is not a scene transition, so the close path does not run there",
+    "Multiplayer not tested; the scene-transition close is skipped in multiplayer by design"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Misc/Sandbox (Play)",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "NullReferenceException at InteractionsLogger.cs:36 (during exit transition, unrelated)",
+    "NullReferenceException at UDInteractionResolver.cs:524 (during exit transition, unrelated)",
+    "MissingReferenceException at Dexterity RaycastController.cs:446 (during exit transition, unrelated)",
+    "No state managers found in scene Sandbox (TransitionManager.cs:137, pre-existing)",
+    "RealtimeView auto-detect error (pre-existing)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.55,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-toolbox-open-A-180",
+      "caption": "Toolbox open in sandbox play showing GAME PAUSED - the starting state of the reported case"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "non-isolated-wide-toolbox-open-A-180",
+      "caption": "Wide view of the cockpit with the toolbox open (step A)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-playmode-after-edit-C-180",
+      "caption": "Playspace after Edit -> Play; aimed at the toolbox spot, toolbox closed per IsOpen false"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "non-isolated-wide-playmode-after-edit-C-180",
+      "caption": "Wide view after returning to Play from Edit"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-toolbox-reopened-D-180",
+      "caption": "Toolbox reopened before exiting the scene (step D)"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-after-exit-to-menu-D-180",
+      "caption": "Playspace after the exit transition; toolbox closed per IsOpen false"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-after-exit-to-menu-D-90",
+      "caption": "After the exit transition, 90 degree view"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-after-exit-to-menu-D-270",
+      "caption": "After the exit transition, 270 degree view"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-after-exit-to-menu-D-180",
+      "caption": "Wide view after the exit transition"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-after-exit-to-menu-D-90",
+      "caption": "Wide view after the exit transition, 90 degrees"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "5b9f2a56-5bda-41c5-a4f6-5dcd500844c5",
+  "session_job_result": "success",
+  "github_run_id": "38244997664",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38244997664",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1QxlJR3ush5z6dbTMKylh4cwoE4iYmI7Q"
+}

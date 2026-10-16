@@ -1,0 +1,160 @@
+{
+  "test_name": "Arm debris and respawned arm lose paint after death - dcaa3ed1-085f-4fdf-ab30-0bdb6d094259",
+  "timestamp": "12-10-2026_08-40-19",
+  "finished_at": "12-10-2026_09-00-56",
+  "duration_minutes": 21,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed: in a two-player test, the player who died still saw paint on their own dropped arms, and their respawned mech's arms were painted. When a mech died, its paintshop cleanup also wiped the paint from the arms it had just dropped, which only happens on the dying player's own screen. The dropped arm is now let go from the mech's paint list, and arms that join a mech after the paint has arrived get painted too. This is the same fix as the earlier run whose commit failed, redone on a clean branch; the other player also kept seeing both players' dropped arms painted.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: missing arm paint after player dies\n\nDESCRIPTION:\nwhen a player gets killed and his arm falls to the ground, the player who just died sees that his arm on the ground has no paint(does have polish), while any other player sees that the arm on the ground does have paint, but the respawned mech's arm do not have paint.\n\nREQUEST (from Amit):\n@Big Sys the commit+push+pr didn't work, rerun the junior dev, this time it should do nothing and let the workflow run the commit+push+pr on the branch with his changes\n\nBig Sys read the card, the code and the tracker first. Her hand-off: Re-implement the fix for card 'missing arm paint after player dies' (Assets/__Multiplayer/Scripts/Mech/Paintshop/). This was already implemented and QA-passed once (run https://github.com/one-hamsa/underdogs/actions/runs/38160774134) but its commit+push+PR step failed, so redo the same fix from a clean `master` checkout:\n\n1) MP_MechArm.Detach() \u2014 remove the detached arm's renderers from the root PaintRendererSet's tracked/merged arrays so a later PaintshopCompositor.Teardown/ClearOutputTextures on the dying mech can no longer strip paint off the now-orphaned arm debris (previously it unconditionally zeroed _WhiteParams/_ColorTex/_SurfaceTex on those renderers because they were still listed as part of the dead mech's paint).\n2) PaintRendererSet / TryMergeIntoParentSet \u2014 cache the last-applied (color, surface) on PaintRendererSet when ApplyTextures runs, and re-push that cached texture onto newly-merged children in TryMergeIntoParentSet (mirrors PaintshopCompositor.cs ~491 PushOutputRT) so a respawned arm that merges in AFTER PaintTextureSynchronizer's disk-cache-hit apply still gets painted.\n\nRead Assets/__Multiplayer/Scripts/Mech/Paintshop/CLAUDE.md and .claude/guides/systems/multiplayer/paintshop.md first (PropertyBlockMaterialSwapper invariants, PaintRendererSet as sole paint writer).\n\nVerify in editor: kill a mech, confirm the dying player's own dropped arm keeps paint (not just polish) while another player also sees it painted, then respawn and confirm the new mech's arm is painted immediately.\n\nIMPORTANT \u2014 stop after implementing and verifying: do NOT run git commit, git push, or open a PR yourself. Leave the changes on disk/branch as-is; the external workflow runs commit+push+PR on that branch. Report PASS/FAIL back on the card as usual.\n\nEXTRA (from the card):\nOmer asked for a more detailed repro / video and whether it reproduces consistently, but no reply with repro details is recorded in the thread. Big Sys's hand-off states this fix was already implemented and QA-passed once (run https://github.com/one-hamsa/underdogs/actions/runs/38160774134) but its commit+push+PR step failed, so it must be redone from a clean master checkout following the two numbered steps (MP_MechArm.Detach() change and PaintRendererSet/TryMergeIntoParentSet caching change) described in the hand-off, reading Assets/__Multiplayer/Scripts/Mech/Paintshop/CLAUDE.md and .claude/guides/systems/multiplayer/paintshop.md first, verifying in editor per the steps given, and explicitly NOT running git commit/push or opening a PR (an external workflow does that).\n\nJOB TYPE:\nBUG FIX - Has the \"Bug\" and \"Major\" labels, and describes paint missing after a player dies - existing behaviour going wrong.\n\nGAME MODE:\nMULTIPLAYER - Has the \"PVP\" label and the work targets Assets/__Multiplayer/Scripts/Mech/Paintshop/, plus the description involves other players seeing the dropped arm",
+  "commit_ref": "master",
+  "commit_sha": "096e749831a88c7c277a25edc63de933d89ee105",
+  "work_branch": "Automations/JuniorDev/dcaa3ed1-085f-4fdf-ab30-0bdb6d094259_38160744332",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/92",
+  "files_changed": [
+    "Assets/__Multiplayer/Scripts/Mech/MP_MechArm.cs",
+    "Assets/__Multiplayer/Scripts/Mech/Paintshop/PaintRendererSet.cs"
+  ],
+  "verified": [
+    "Dying player's own 4 dropped-arm Cover renderers keep _WhiteParams=1 after the old mech's compositor teardown (main editor)",
+    "Respawned local mech's arms and body painted (_WhiteParams=1) right after respawn",
+    "Other player (MPPM Player 2) sees the dead player's dropped arms painted (red test texture kept)",
+    "Regression: Player 2 died; main editor sees its dropped arms still painted, all 8 debris renderers painted"
+  ],
+  "not_done": [
+    "Late-merge re-apply not exercised in isolation in the PaintTextureSynchronizer disk-cache-hit order; the local respawned arms were painted but the compositor's own push may have covered it",
+    "No real synced paint design on the test profiles; a red test texture pushed through PaintRendererSet.ApplyTextures stood in for it"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no audio input on the cloud machine; unrelated)",
+    "[Recorder] [UD Photon Voice Chat(Clone)] InputFactory creation failure: failed to getRecordDriverInfo: ERR_INVALID_PARAM (unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.48,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-p2-dropped-arms-red-90",
+      "caption": "Player 2's two dropped arms after its death, seen from the main editor: cover plates clearly red, so the debris kept its paint"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-p2-dropped-arms-red-0",
+      "caption": "Same red dropped arms from the front"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-p2-dropped-arms-red-180",
+      "caption": "Same red dropped arms from behind"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-p2-dropped-arms-red-270",
+      "caption": "Same red dropped arms from the side"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-respawned-own-mech-arms-0",
+      "caption": "The main player's respawned mech: arms show the default orange-brown paint on the covers; a magenta debug sphere sits on the chassis"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-respawned-own-mech-arms-180",
+      "caption": "Respawned mech from behind, arms painted"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-own-dropped-arms-after-death-90",
+      "caption": "Dying player's own dropped arms, lying in the unlit spawn elevator: mostly dark silhouettes with orange visible on one hand; the paint state comes from the probe (_WhiteParams=1), not this picture"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-own-dropped-arms-after-death-200",
+      "caption": "Own dropped arms from another angle, still dark from the lighting"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-own-dropped-arms-after-death-300",
+      "caption": "Own dropped arms, third angle"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-45",
+      "caption": "Wide shot: the respawned mech and its dropped arms (top), with Player 2's red dropped arms (bottom right), all isolated"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-135",
+      "caption": "Same set, wide from 135 degrees"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-90",
+      "caption": "Same set, closer wide shot; the camera search reported Player 2's debris blocked"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-p2-dropped-arms-45",
+      "caption": "Player 2's dropped arms in the Joint scene; every camera position reported blocked"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-own-dropped-arms-90",
+      "caption": "The dying player's dropped arms in the Joint spawn area"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-270",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-all-debris-and-respawned-mech-315",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "non-isolated-wide-own-dropped-arms-270",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "non-isolated-wide-p2-dropped-arms-135",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "non-isolated-wide-p2-dropped-arms-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "non-isolated-wide-p2-dropped-arms-315",
+      "caption": ""
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "1ba80a22-c2e2-4480-97ec-7dbc706c1010",
+  "session_job_result": "success",
+  "github_run_id": "38224439223",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38224439223",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1H8pxf51RrOWqp5Wap6WPOHxYaYx5blPW"
+}

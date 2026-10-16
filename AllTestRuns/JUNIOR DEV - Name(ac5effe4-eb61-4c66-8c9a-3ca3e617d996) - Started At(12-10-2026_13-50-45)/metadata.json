@@ -1,0 +1,130 @@
+{
+  "test_name": "Winner gets x5 turbo instead of x1 - ac5effe4-eb61-4c66-8c9a-3ca3e617d996",
+  "timestamp": "12-10-2026_13-50-45",
+  "finished_at": "12-10-2026_14-05-55",
+  "duration_minutes": 15,
+  "started_by": "Omer",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed: in a test Deathmatch the winner's bonus round now gives turbo x1 on both arms, where it gave x5. The winner bonus round had x5 arm turbo hard-coded, and I changed it to x1 to match the chassis. I started a bonus round on a local test server and checked the turbo count. It stayed x1 after the bonus timer changed and cleared at the final standings.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: winner should have x1 turbo not x5\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Omer):\n@Big Sys take it\n\nJOB TYPE:\nBUG FIX - title states the winner's turbo should be x1 not x5, describing incorrect existing behavior\n\nGAME MODE:\nUNSURE - JUDE should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "08c2f5f4ad2a1e36b5bbae8ca157baaddf2c1573",
+  "work_branch": "Automations/JuniorDev/winner-turbo-multiplier_78",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/98",
+  "files_changed": [
+    "Assets/__Multiplayer/_Tech/Scripts/LevelLogic/Deathmatch/DeathmatchController.Bonus.cs"
+  ],
+  "verified": [
+    "Deathmatch winner bonus round (Dev_DeathmatchStartBonus, local SpacetimeDB): winner arm turbo count L=1 R=1, chassis 1, isTurbo true",
+    "Bonus timer changed (Dev_DeathmatchSetTimeRemaining 300) re-applies winner turbo: still L=1 R=1 chassis 1",
+    "Final standings (Dev_DeathmatchFinishBonus survived): turbo cleared to 0 on arms and chassis"
+  ],
+  "not_done": [
+    "How 1 turbo stack feels in play (punch power, damage reduction) was not judged - needs a human playing"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Advanced/Multiplayer/Local SpaceTimeDB",
+    "Multiplayer/Levels/Shithole"
+  ],
+  "console_errors": [
+    "Local SpacetimeDB connect failed ... a QA script manages the server (startup race, connected afterwards)",
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no microphone on the machine)",
+    "DMGFX TurboOn - P.%100 Cannot find a controller to subscribe this DMGEventHandler to",
+    "The following exception was raised while doing fixedUpdates for MP_KillPlane (MissingReferenceException: Transform destroyed)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.44,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-winner-mech-bonus-turbo-arms-180",
+      "caption": "Winner mech during the bonus round: arms tinted purple/blue with turbo arcs, red bonus bubble - turbo on (count read as 1)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-winner-mech-bonus-turbo-arms-0",
+      "caption": "Winner mech in the bonus round from the opposite side, arms in the turbo look"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-winner-mech-bonus-turbo-arms-90",
+      "caption": "Winner mech in the bonus round from the side, arms in the turbo look"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-winner-mech-bonus-turbo-arms-270",
+      "caption": "Winner mech in the bonus round from the other side, arms in the turbo look"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-winner-mech-bonus-turbo-arms-45",
+      "caption": "Winner mech in the bonus round at 45 degrees, arms in the turbo look"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-wide-regression-check-winner-turbo-after-time-reapply-150",
+      "caption": "Winner mech, wide, after the bonus timer change re-applied the turbo (count still 1)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-winner-turbo-after-time-reapply-270",
+      "caption": "Winner mech, wide, after the timer change from another side"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-winner-turbo-after-time-reapply-30",
+      "caption": "Wide shot after the timer change - the capture reported every position blocked, so the mech may not be clear in it"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-winner-mech-final-standings-no-turbo-180",
+      "caption": "Final standings: arms back to their normal red/brown look with no turbo arcs, bubble-break shards - turbo cleared"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-winner-turbo-cleared-final-standings-150",
+      "caption": "Final standings, wide (capture reported the view blocked) - turbo cleared"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-winner-turbo-cleared-final-standings-270",
+      "caption": "Final standings, wide from another side (capture reported the view blocked)"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "non-isolated-wide-winner-mech-bonus-turbo-120",
+      "caption": "Shithole Rumble arena around the winner mech in the bonus round; mech small in frame with purple turbo arms"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-winner-mech-bonus-turbo-0",
+      "caption": "Arena wide shot in the bonus round (capture reported the mech blocked by level geometry)"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-winner-mech-bonus-turbo-240",
+      "caption": "Arena wide shot in the bonus round (capture reported the mech blocked by level geometry)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-winner-mech-final-standings-120",
+      "caption": "Arena wide shot at the final standings (capture reported the mech blocked by level geometry)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "57a95872-e63e-4882-8481-bd13c0de2dac",
+  "session_job_result": "success",
+  "github_run_id": "38257977772",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38257977772",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1HC0COKcB-xIbcX974Wgpiw_7XnO0gsy3"
+}

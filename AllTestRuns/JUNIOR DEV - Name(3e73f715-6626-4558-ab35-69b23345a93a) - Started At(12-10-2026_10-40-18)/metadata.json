@@ -1,0 +1,54 @@
+{
+  "test_name": "Grips disabled after leaving play with cam tools open - 3e73f715-6626-4558-ab35-69b23345a93a",
+  "timestamp": "12-10-2026_10-40-18",
+  "finished_at": "12-10-2026_11-01-13",
+  "duration_minutes": 21,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "aborted",
+  "partial": false,
+  "summary": "Aborted because I could not reproduce the problem in the editor, so I have no root cause I can trust. I opened the camera toolbox while playing a Sandbox level, then went back to edit mode through the pause menu's Edit path, both with and without the pause menu open. Both times the toolbox closed in edit mode, the game was not paused, and grabbing items in the editor stayed enabled. The editor has no VR headset, so a cause that only happens with real controllers (for example, holding grip while pointing at the toolbox) was not tested.",
+  "job_type": "bug",
+  "abort_reason": "cause not found",
+  "failure_kind": null,
+  "instructions": "TASK: Grips disabled when returning to edit mode with Cam tools ON\n\nDESCRIPTION:\nRepro steps:\n\n1. Enter Sandbox\n2. Play level\n3. Open cam toolbox\n4. Return to edit mode\n\nnow your grip should be disabled even after pressing play gain.\n\nVid in the discord - <https://discordapp.com/channels/276104181067022336/1551061962417250304/1551061962417250304>\n\nREQUEST (from Amit):\n@Big Sys investigate and fix\n\nEXTRA (from the card):\n- Log report GPOV (version 1.5.3.12434, Production, player Zypheriom) - Log report from player Zypheriom, version 1.5.3.12434, Production build\nA video demonstrating the issue is linked in Discord (Amit's message).\n\nJOB TYPE:\nBUG FIX - labeled 'Bug' and describes grips being disabled unexpectedly, which used to work\n\nGAME MODE:\nSINGLEPLAYER - card has the 'SinglePlayer' label",
+  "commit_ref": "master",
+  "commit_sha": "e29defa35c452b997611a2a0d061ce63562bb7c8",
+  "work_branch": "Automations/JuniorDev/grips-disabled-cam-tools_38231546703",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Sandbox Play with camera toolbox open (Settings.SetCinematicViewer(true)) pauses the game (timeScale 0)",
+    "SandboxPauseMenu.SandboxEdit path (shouldEdit + SandboxController.ReloadAsync) with toolbox open: edit mode loads, CinematicViewer closed, timeScale 1, SandboxDraggable drag listener enabled, last PauseChangeEvent false, no RaycastController filters",
+    "Same with the pause menu open before Edit: same result, PauseMenu not paused afterwards",
+    "Play again from edit reopens the toolbox (toolbox state restored)"
+  ],
+  "not_done": [
+    "cause not found: grips disabled in Sandbox edit mode and afterwards in Play mode after returning to edit with the camera toolbox open - read CinematicViewer pause/close paths (UpdateTimeScale, OnDisable, SyncToSettings, CanOpenHere), SandboxController play/edit switch and ReloadAsync, SandboxDraggable pause handling, PauseMenu pause/unpause, SP_Gorilloco grip gating; runtime check in No-VR showed the toolbox closes in edit mode and item dragging stays enabled, so neither the toolbox-pause reading nor a stale pause event matches. Unconfirmed code lead: SP_Gorilloco.cs:311 drops grip while pilot.disableStickRotation is set (set by CinematicViewer.SetCameraSticksOverride while the toolbox is hovered, and by SandboxEditor.LateUpdate), but the flag is per mech and the mech is recreated on the reload, so it does not explain the report"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Misc/Sandbox (Play)",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "System.IO.IOException: Sharing violation on path ...\\UNDERDOGS\\unnamed.sandbox (boot scenario load, unrelated to the task; level loaded from code afterwards)",
+    "Scenario content is null for id: unnamed",
+    "No scenario loaded",
+    "[Primary] No state managers found in scene Sandbox but has transition request! creating default",
+    "RealtimeView: Attempting to auto-detect Realtime instance, but none exist in the scene yet."
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.23,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "b53073a2-fd3c-43d7-86c5-aac1d6903d8a",
+  "session_job_result": "success",
+  "github_run_id": "38236727528",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38236727528",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1MDrn3786frUW8IUUp1XLVituWyjOs0dK"
+}

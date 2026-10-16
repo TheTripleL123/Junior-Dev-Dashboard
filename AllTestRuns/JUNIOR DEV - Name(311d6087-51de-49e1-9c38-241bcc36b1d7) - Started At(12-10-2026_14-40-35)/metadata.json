@@ -1,0 +1,43 @@
+{
+  "test_name": "Spectators shown on the cage leaderboard - 311d6087-51de-49e1-9c38-241bcc36b1d7",
+  "timestamp": "12-10-2026_14-40-35",
+  "finished_at": "12-10-2026_14-59-17",
+  "duration_minutes": 19,
+  "started_by": "Omer",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Inconclusive because the fix was proven on a test copy of the server, not in a game with a real spectator. The server added every spectator in a cage room to that room's leaderboard with 0 kills. I made it skip spectators, the same way the weekly cage board already does. On a local test server the board listed both spectators before the fix and only the two players after it.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: spectators appear on the cage leaderboard?\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Omer):\n@Big Sys take this\n\nJOB TYPE:\nBUG FIX - the title asks \"spectators appear on the cage leaderboard?\" implying unwanted/incorrect existing behaviour\n\nGAME MODE:\nUNSURE - JUDE should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "8718451a7120bb4699f8b8bc87f625a21a8c3acb",
+  "work_branch": "Automations/JuniorDev/spectators-on-cage-leaderboard_79",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/99",
+  "files_changed": [
+    "Cloud Code Projects/SpacetimeDB-Server-Rust/src/tables/cage_room_leaderboard_kills.rs"
+  ],
+  "verified": [
+    "Local SpacetimeDB, before fix: MyCageRoomLeaderboard returned 4 rows for a room of 2 players + 2 spectators (spectators ranked #3/#4 with 0 kills) - bug reproduced",
+    "Local SpacetimeDB, after fix: the same room returned 2 rows (the players, ranks 1-2); spectators excluded, ranks consecutive"
+  ],
+  "not_done": [
+    "No in-editor check of the cage leaderboard UI with a live spectator client (no captures) - needs a second client joined as spectator on a local server"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.0,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "de013b35-e3fc-4ec8-a740-f67691ad6cbd",
+  "session_job_result": "success",
+  "github_run_id": "38263901981",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38263901981",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1Ow7uSGT_GZnwtyNwG1FmOnegvDNeHqZf"
+}

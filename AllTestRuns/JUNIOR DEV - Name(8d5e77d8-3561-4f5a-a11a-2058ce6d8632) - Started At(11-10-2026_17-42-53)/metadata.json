@@ -1,0 +1,99 @@
+{
+  "test_name": "Cinematic Viewer NRE spam in Rampage Arena - 8d5e77d8-3561-4f5a-a11a-2058ce6d8632",
+  "timestamp": "11-10-2026_17-42-53",
+  "finished_at": "11-10-2026_18-00-30",
+  "duration_minutes": 18,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Pass because this bug is already fixed on master: I set up the reported case on current master and the camera toolbox ran for about 650 frames with no errors. The error came from the camera toolbox trying to show its quick-capture marker on the singleplayer cockpit screen, which doesn't have that marker. A fix from Oct 5 already skips the missing marker, so the build in the screenshot was older than that fix. I didn't change any code, so this run opens no PR.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: NRE in Cinematic Viewer (spamming)\n\nDESCRIPTION:\nMight repro in editor as well - not sure\n\nREQUEST (from Amit):\n@Big Sys if you haven't already, dispatch the junior dev\n\nBig Sys read the card, the code and the tracker first. Her hand-off: Bug: NullReferenceException spamming every frame from CinematicViewer.Update() -> CinematicViewer.UpdateMechRecordingUI() (Assets/Scripts/Animation/Cinematic/CinematicViewer.cs:1416-1430). The card's attached screenshot shows scene path 'Rampage Arena' / 'Rampage (Runtime)' - multiplayer, not just editor.\n\nCode:\nprivate void UpdateMechRecordingUI() {\n    var player = MechReference.player;\n    if (player == null || player.mechOS == null) return;\n    var recording = player.mechOS.recording;\n    if (recording != null && recording.activeSelf != _quickMode)\n        recording.SetActive(_quickMode);\n    if (_recordTimerActive && IsRecording())\n        player.mechOS.SetRecordingTimerSeconds(Mathf.CeilToInt(_recordTimerRemaining));\n    else\n        player.mechOS.HideRecordingTimer();\n}\n\nLikely cause: MechReference.player (Assets/Scripts/__SinglePlayer/Scripts/Mech/IPlayerMech.cs:27) is typed IPlayerMech - an interface, not UnityEngine.Object. 'player == null' therefore resolves to plain reference equality at compile time and does NOT catch Unity's destroyed-but-still-referenced fake-null the way a direct Object null-check would. MP_PlayerMech.cs:461-465 (ThrottledTeardown) explicitly nulls MechReference.player via ReferenceEquals, with a comment that OnDisable normally does this for an 'awakened' mech but 'never fires on an un-awakened abort' - so there is a known path where the static field can go stale, still pointing at a destroyed mech. Once stale, player.mechOS or its members can throw.\n\nTo do: reproduce in a multiplayer Rampage Arena session (editor repro unconfirmed - card says 'might repro in editor as well, not sure', so check that first since it's cheaper) by causing a mech to be destroyed via the un-awakened-abort path while the Cinematic Viewer toolbox is open/recording - e.g. a fast respawn or an aborted mech spawn. Confirm with the debugger exactly which member access throws (the IL2CPP stack only shows UpdateMechRecordingUI/Update because of stripped symbols, so the exact null isn't proven yet - could be a stale player.mechOS access, or the mechOS component itself referencing something destroyed). Fix by making ThrottledTeardown's un-awakened-abort path also clear MechReference.player (matching what OnDisable does for the awakened case), and/or hardening the interface-typed null check at the read site (e.g. compare via '(player as UnityEngine.Object) != null' or similar) so a destroyed mech can't be read as non-null. Read .claude/__Multiplayer/CLAUDE.md and .claude/rules/multiplayer.md before touching MP_PlayerMech.cs - it's shared authority/lifecycle code. Done = no more NRE spam when a mech is torn down via that abort path while the toolbox is active, verified via repro.\n\nEXTRA (from the card):\n- Screenshot: Pasted image 16:55:24 \u2014 https://artqrjiehjyznnnoshil.supabase.co/storage/v1/object/sign/node_context/8d5e77d8-3561-4f5a-a11a-2058ce6d8632/9eb188d3-6972-4226-9424-f660f4e3c056.png?token=eyJraWQiOiIxNTQ2YzFiMC03ZmQ4LTRjZWQtOTQyMy1kNWNkNzY4ZWI4NWUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJub2RlX2NvbnRleHQvOGQ1ZTc3ZDgtMzU2MS00ZjVhLWExMWEtMjA1OGNlNmQ4NjMyLzllYjE4OGQzLTY5NzItNDIyNi05NDI0LWY2NjBmNGUzYzA1Ni5wbmciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzkxNzQwMDE4LCJleHAiOjE3OTE3NDM2MTh9.C2pbQ_CgALf54P8f7IL_8VU02rgdOr36mmk6t9v7qk8 - Console stack trace: NullReferenceException at CinematicViewer.UpdateMechRecordingUI()/Update(), with scene hierarchy path shown: VR Plugins/Oculus Root Variant(Clone)/VR Root/Cinematic Viewer(Clone), scenes 'Rampage Arena', 'Rampage (Runtime)', 'Main (Runtime)', 'GAMES Graph (Runtime)'.\nBig Sys's hand-off (included in the request) already pinpoints the bug to CinematicViewer.UpdateMechRecordingUI() (CinematicViewer.cs:1416-1430), the likely cause in MechReference.player's interface typing vs Unity fake-null, and the ThrottledTeardown un-awakened-abort path in MP_PlayerMech.cs:461-465; it instructs reading .claude/__Multiplayer/CLAUDE.md and .claude/rules/multiplayer.md before touching MP_PlayerMech.cs, and to try the cheaper editor repro first since the card itself says repro in editor is unconfirmed.\n\nJOB TYPE:\nBUG FIX - Title says 'NRE in Cinematic Viewer (spamming)' and the hand-off describes a NullReferenceException being thrown, i.e. existing behaviour going wrong.\n\nGAME MODE:\nMULTIPLAYER - Big Sys's hand-off states the attached screenshot's scene path 'Rampage Arena' / 'Rampage (Runtime)' is multiplayer, not just editor, and ties the likely cause to MP_PlayerMech.cs",
+  "commit_ref": "master",
+  "commit_sha": "ea567024eb5b6f8d221f8ad9c7123d9e8e0454d5",
+  "work_branch": "Automations/JuniorDev/8d5e77d8-3561-4f5a-a11a-2058ce6d8632_38160414782",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "Rampage Arena (Quick Rampage, singleplayer): the SP_PlayerMech mech OS has recording == null and recordingTimer == null at runtime, which is the input that made the pre-d72c4e45d2 code throw at CinematicViewer.cs:1423",
+    "Cinematic Viewer(Clone) spawned from Resources and opened (OnCinematicViewerChanged(true)), with quick mode on and then off, ran frames 1648-2297 with zero NullReferenceException and no CinematicViewer entries in the console"
+  ],
+  "not_done": [
+    "Multiplayer mech OS (MP Mech OS.prefab, recording assigned) not exercised at runtime: it needs a multiplayer session. I read that path in code: mechOS is typed MechOS, so its == null check catches a destroyed mech OS, and the marker and timer are null-guarded",
+    "Timed recording (_recordTimerActive) not exercised: it needs LCK recording, which this no-VR editor doesn't run. SetRecordingTimerSeconds and HideRecordingTimer both null-guard recordingTimer"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.05,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-cinematic-viewer-quickmode-sp-mech-180",
+      "caption": "Cinematic Viewer isolated from behind; the frame is all white, so the viewer screen isn't readable in the no-VR editor"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-cinematic-viewer-quickmode-sp-mech-0",
+      "caption": "Cinematic Viewer isolated from the front; also all white, so the viewer itself isn't visible"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-sp-mech-os-no-recording-marker-0",
+      "caption": "Singleplayer Mech OS isolated: left arm, cockpit and right arm bars plus two side panels, no quick-capture marker on it (the SP prefab has none)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-sp-mech-os-no-recording-marker-180",
+      "caption": "Singleplayer Mech OS isolated, seen from the opposite side"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-sp-mech-os-no-recording-marker-135",
+      "caption": "Singleplayer Mech OS isolated, at an angle"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "non-isolated-wide-sp-mech-rampage-viewer-open-45",
+      "caption": "Gorilla Mech standing in Rampage Arena in the rain, round timer 00:34 on the wall; the scene from the report, running with the viewer open"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "non-isolated-wide-sp-mech-rampage-viewer-open-135",
+      "caption": "Rampage Arena wide shot around the player mech, a different angle"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "non-isolated-wide-sp-mech-rampage-viewer-open-225",
+      "caption": "Rampage Arena wide shot around the player mech, a different angle"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-sp-mech-rampage-viewer-open-315",
+      "caption": "Rampage Arena wide shot around the player mech, a different angle"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-cinematic-viewer-near-mech-90",
+      "caption": "Wide shot aimed at the Cinematic Viewer; the viewer was blocked from all 10 positions (hidden=[Cinematic Viewer(Clone)])"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "660e10ca-23d2-4c1e-ab2b-2325585f10a9",
+  "session_job_result": "success",
+  "github_run_id": "38160442224",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38160442224",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1MLVzzenkaLjydLHpvVoZm3jXxCxnahtb"
+}

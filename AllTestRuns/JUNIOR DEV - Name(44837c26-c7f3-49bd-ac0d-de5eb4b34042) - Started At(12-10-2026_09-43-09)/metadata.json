@@ -1,0 +1,198 @@
+{
+  "test_name": "ABC challenge personal record missing from menu - 44837c26-c7f3-49bd-ac0d-de5eb4b34042",
+  "timestamp": "12-10-2026_09-43-09",
+  "finished_at": "12-10-2026_10-07-38",
+  "duration_minutes": 24,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Pass because ABC's challenge details now show the YOUR BEST marker for slow, mid and Top Dog times, and putting the bar back into the state the old code left it in hides the marker again. This puts back the earlier session's fix: a record slower than Top Dog sent the bar a state name that doesn't exist, so the marker stayed invisible, and a record slower than 2:00 also got a zero-width marker. Other challenges (Aggressor, Hit & Run, 7 Strikes) still show their record.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: You can't see your personal record in the challenge ABC\n\nDESCRIPTION:\nevery other challenge's personal record does show, and in ABC when you do beat your personal record it says \"new personal record\" but you don't see it in the menu\n\nREQUEST (from Amit):\n@Big Sys  dispatch jude again, it already fixed this issue but we had a problem with the workflows commit+push+pr, now it's okay so just put the changes in again\n\nEXTRA (from the card):\nAmit says this issue was already fixed once by jude but a workflow problem with commit+push+PR lost the changes, and asks to reapply the same fix now that the workflow is working again.\n\nJOB TYPE:\nBUG FIX - labeled 'Bug' and describes personal record not showing for the ABC challenge when it should\n\nGAME MODE:\nSINGLEPLAYER - card has the 'SinglePlayer' label",
+  "commit_ref": "master",
+  "commit_sha": "719f5ba7be4b2b22430c7e724fd602f740fa7828",
+  "work_branch": "Automations/JuniorDev/44837c26-c7f3-49bd-ac0d-de5eb4b34042_38161145081",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/94",
+  "files_changed": [
+    "Assets/_Content/Sandboxxer/Scripts/SandboxScenarioSettings.cs",
+    "Assets/_Content/Sandboxxer/Scripts/UI/Scorebar.cs"
+  ],
+  "verified": [
+    "Real Scenario Details panel scorebar, ABC best 2:30 and 1:00: node state complete, Your Best marker alpha 1, fill 0.214 / 0.750, YOUR BEST text shown",
+    "Same panel with the node forced to unstarted (where the old code leaves it): Your Best CanvasGroup alpha 0, marker gone from the bar; back to complete: visible again",
+    "Standalone Scorebar for ABC 0:30 (Top Dog), Aggressor 4:30, Hit & Run 3:22, 7 Strikes 33: YOUR BEST visible with non-zero fill",
+    "SetState(\"completed\") is rejected by the node (logs 'State completed not found in Scorebar') and keeps the previous state"
+  ],
+  "not_done": [
+    "Did not open the details from the real sandbox menu after a played ABC run; bars were initialized from code with the same fields ChallengeDetailsUI sets",
+    "Did not check the end-of-run Sandbox Summary screen, which also gets the Bronze -> complete mapping"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God"
+  ],
+  "console_errors": [
+    "UnityEngine.MissingReferenceException: The object of type 'OneHamsa.Dexterity.StateProxyNode' has been destroyed (test rig: destroyed panel roots still referenced by the moved Scores subtree)",
+    "System.NullReferenceException in BridgeScript.cs (test rig setup scripts)",
+    "State completed not found in Scorebar (from the deliberate SetState(\"completed\") check)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.55,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-details-panel-abc-1m00-old-code-unstarted-state",
+      "caption": "Real details panel bar for ABC 1:00 in the unstarted state the old code leaves it in: no YOUR BEST marker on the bar (mirrored view, header text unbound by the test rig)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-details-panel-abc-1m00-fixed-complete-state",
+      "caption": "Same bar in the complete state the fix sends: YOUR BEST 01:00.00 marker shown with the red fill (mirrored view)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-details-panel-abc-2m30-fixed",
+      "caption": "Real details panel bar for ABC 2:30 with the fix: YOUR BEST marker shown near the slow end of the bar"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-wide-regression-check-details-panels-yaw0",
+      "caption": "Four panel bars stacked on one spot (ABC 2:30, ABC 1:00, Aggressor 4:30, 7 Strikes 33): every YOUR BEST marker is visible, mirrored view"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-wide-regression-check-details-panels-yaw20",
+      "caption": "Same four stacked panel bars from 20 degrees: YOUR BEST markers visible"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-abc-best-2m30-front",
+      "caption": "Standalone scorebar, ABC 2:30: YOUR BEST 02:30.00 marker above the bar, Top Dog 00:40.00 at the left"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-abc-best-2m30-yaw20",
+      "caption": "Standalone ABC 2:30 bar from 20 degrees, framed low in the image"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-abc-best-2m30-yaw-20",
+      "caption": "Standalone ABC 2:30 bar from -20 degrees, framed low in the image"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-abc-best-2m30-forced-old-completed-state",
+      "caption": "Standalone ABC 2:30 bar after SetState(\"completed\"): node rejected it and the marker stayed as it was (this prefab alone has no unstarted alpha override)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-close-abc-best-2m30-old-flow-unfinished-state",
+      "caption": "Standalone ABC 2:30 bar in unfinished: marker still visible, so the standalone prefab does not reproduce the hide"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-close-abc-1m00-yaw0",
+      "caption": "Standalone scorebar, ABC 1:00: YOUR BEST 01:00.00 marker near the Top Dog end"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-close-abc-1m00-yaw20",
+      "caption": "Standalone ABC 1:00 bar from 20 degrees"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-close-abc-1m00-yaw-20",
+      "caption": "Standalone ABC 1:00 bar from -20 degrees"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-close-abc-0m30-gold-yaw0",
+      "caption": "Standalone scorebar, ABC 0:30 (Top Dog)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-close-abc-0m30-gold-yaw20",
+      "caption": "Standalone ABC 0:30 bar from 20 degrees"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-close-abc-0m30-gold-yaw-20",
+      "caption": "Standalone ABC 0:30 bar from -20 degrees"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-all-challenges-yaw0",
+      "caption": "Six standalone bars (ABC x3, Aggressor, Hit & Run, 7 Strikes), each with a red YOUR BEST marker"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "isolated-wide-regression-check-all-challenges-yaw15",
+      "caption": "Six standalone bars from 15 degrees"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "isolated-wide-regression-check-all-challenges-yaw-15",
+      "caption": "Six standalone bars from -15 degrees"
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "isolated-wide-regression-check-all-challenges-yaw30",
+      "caption": "Six standalone bars from 30 degrees"
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "isolated-wide-regression-check-all-challenges-yaw-30",
+      "caption": "Six standalone bars from -30 degrees"
+    },
+    {
+      "file": "SCREENSHOT_22.webp",
+      "name": "non-isolated-wide-scorebars-in-rampage-yaw0",
+      "caption": "Quick Rampage arena; the test bars are a tiny speck at the centre, nothing else broken in view"
+    },
+    {
+      "file": "SCREENSHOT_23.webp",
+      "name": "non-isolated-wide-scorebars-in-rampage-yaw20",
+      "caption": "Quick Rampage arena from 20 degrees, test bars too small to read"
+    },
+    {
+      "file": "SCREENSHOT_24.webp",
+      "name": "non-isolated-wide-scorebars-in-rampage-yaw-20",
+      "caption": "Quick Rampage arena from -20 degrees, test bars too small to read"
+    },
+    {
+      "file": "SCREENSHOT_25.webp",
+      "name": "non-isolated-wide-scorebars-in-rampage-yaw35",
+      "caption": "Quick Rampage arena from 35 degrees"
+    },
+    {
+      "file": "SCREENSHOT_26.webp",
+      "name": "non-isolated-wide-scorebars-in-rampage-yaw-35",
+      "caption": "Quick Rampage arena from -35 degrees"
+    },
+    {
+      "file": "SCREENSHOT_27.webp",
+      "name": "non-isolated-wide-details-panels-in-rampage-yaw10",
+      "caption": "Arena around the large test panel canvases, environment shot"
+    },
+    {
+      "file": "SCREENSHOT_28.webp",
+      "name": "non-isolated-wide-details-panels-in-rampage-yaw-25",
+      "caption": "Arena around the large test panel canvases from -25 degrees, environment shot"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "42af24bd-c561-400a-95bf-bf7f8d077b02",
+  "session_job_result": "success",
+  "github_run_id": "38231120297",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38231120297",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/14SzyYyJvRT3kIVXJtuYBYpjaGQ-miicr"
+}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Junior Dev Automation</title>
+  <script>
+    // GitHub Pages serves this page for unknown paths. <base>/<run id> opens the dashboard on that run.
+    (function () {
+      const base = "/Junior-Dev-Dashboard/";
+      const path = location.pathname;
+      const id = path.startsWith(base) ? decodeURIComponent(path.slice(base.length)).replace(/\/+$/, "") : "";
+      location.replace(base + (id ? "?run=" + encodeURIComponent(id) : ""));
+    })();
+  </script>
+</head>
+<body style="background:#0d1117;color:#7d8590;font-family:system-ui,sans-serif">Redirecting&hellip;</body>
+</html>

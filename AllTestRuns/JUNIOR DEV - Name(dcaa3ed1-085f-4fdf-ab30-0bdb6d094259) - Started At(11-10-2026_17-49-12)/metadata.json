@@ -1,0 +1,162 @@
+{
+  "test_name": "Arm paint missing on dropped and respawned mech arms - dcaa3ed1-085f-4fdf-ab30-0bdb6d094259",
+  "timestamp": "11-10-2026_17-49-12",
+  "finished_at": "11-10-2026_18-04-44",
+  "duration_minutes": 16,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed: after the player died twice in the editor, the dropped arms kept their paint once the dead mech was removed, and every respawned mech's arms were painted. The dropped arm was still listed as part of the dead mech's paint, so when the dead mech was cleaned up it wiped the paint off the arm too, and only the dying player has that cleanup step. The respawned arm could miss its paint when the saved paint loaded before the arm was built. Now a detached arm leaves the mech's paint list, and arms built later get the paint that was already applied.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: missing arm paint after player dies\n\nDESCRIPTION:\nwhen a player gets killed and his arm falls to the ground, the player who just died sees that his arm on the ground has no paint(does have polish), while any other player sees that the arm on the ground does have paint, but the respawned mech's arm do not have paint.\n\nREQUEST (from Amit):\n@Big Sys okay well then dispatch the junior dev if you haven't already, find the cause, implement and fix\n\nBig Sys read the card, the code and the tracker first. Her hand-off: Two separate bugs under Assets/__Multiplayer/Scripts/Mech/Paintshop/ \u2014 read that folder's CLAUDE.md and .claude/guides/systems/multiplayer/paintshop.md first (PropertyBlockMaterialSwapper invariants, PaintRendererSet as sole paint writer).\n\nBUG 1 \u2014 dying player sees own dropped arm unpainted (others see it painted): PaintshopCompositor.OnDisable() calls ClearOutputTextures() -> PaintRendererSet.ClearTextures, which unconditionally zeroes _WhiteParams (and _ColorTex/_SurfaceTex) on every Cover slot of the ROOT PaintRendererSet's merged arrays (PaintRendererSet.cs ~147-149, via TryMergeIntoParentSet ~193 the arm renderers are merged into this root set). On death the arm detaches (MP_MechArm.Detach(), ~line 1418) and becomes debris that outlives the mech; when the mech itself is torn down (on respawn) the compositor's OnDisable/Teardown fires and strips paint off the now-orphaned debris renderers too. Only the owning client ever had a PaintshopCompositor (remotes get it stripped in MP_PlayerMech.ThrottledSetup via PaintTextureSynchronizer.StripPaintshopRuntimeFromMech, ~line 752) \u2014 that's why only the dying player sees it, not remote viewers. Polish survives because it's owned separately by PropertyBlockMaterialSwapper and ClearTextures never touches it.\nFix: in MP_MechArm.Detach(), remove the detached arm's renderers from the root PaintRendererSet's tracked arrays (so ClearTextures on mech teardown can no longer reach them) OR make PaintshopCompositor.Teardown/ClearOutputTextures skip renderers that no longer belong to a live mech (filter by GameEntity/parent check before clearing).\n\nBUG 2 \u2014 respawned mech's arm has no paint (separate bug): PaintTextureSynchronizer.OnReadyForUse -> DownloadAndApplyAsync -> ApplyToMech applies the color/surface textures to the root PaintRendererSet once. On first spawn the S3 fetch is slow enough that arm setup finishes first. On respawn, PaintTextureCloudProvider.DownloadAsync hits the local PaintTextureDiskCache (sync File.ReadAllBytes, ~line 132) and returns same-frame \u2014 before MP_PlayerMech.InitializeSetup/SetupArms (~line 1403) has created the arms and merged their PaintRendererSets into root (TryMergeIntoParentSet). So the apply lands on a root set that doesn't have the arm renderers in it yet, and never gets reapplied after the merge.\nFix: cache the last-applied (color, surface) on PaintRendererSet (set in ApplyTextures), and have TryMergeIntoParentSet re-push the parent's cached textures onto newly-merged children when a merge happens after the initial apply \u2014 mirrors the existing parent.PushOutputRT() call at PaintshopCompositor.cs ~491.\n\nNot a cause: the auto-attached commit on the card (LocalRemoteValue: use remote values on the local mech when viewed from outside its bubble) \u2014 checked, LocalRemoteValue<T> usage in this codebase is cockpit-tilt/shake config only, unrelated to paint. Don't chase it.\n\nRepro to verify the fix: kill a mech, have the dying player look at their own dropped arm (should now show paint, not just polish) while another player also looks at it; then let that player respawn and check the new mech's arm has paint immediately. Report back to Omer/Amit on the card with repro confirmation once verified, since Omer asked for a more detailed repro earlier in the thread.\n\nEXTRA (from the card):\n- Commit 48d9c77694 (one-hamsa/underdogs): LocalRemoteValue: use remote values on the local mech when viewed from outside its bubble \u2014 https://github.com/one-hamsa/underdogs/commit/48d9c7769479c5be73ee3ccdba031bf3ebabaff1 - Not the cause of this bug (confirmed by Big Sys): LocalRemoteValue<T> in this codebase is only used for cockpit-tilt/shake config, unrelated to paint - do not chase this commit.\nBig Sys's hand-off (from reading the card, code and tracker) identifies two separate bugs under Assets/__Multiplayer/Scripts/Mech/Paintshop/: (1) PaintshopCompositor.OnDisable -> ClearOutputTextures/PaintRendererSet.ClearTextures strips paint from the detached arm debris because it's still tracked in the root PaintRendererSet's merged arrays when the mech tears down on respawn; fix by removing detached arm renderers from the root set in MP_MechArm.Detach(), or by filtering Teardown/ClearOutputTextures to skip renderers no longer belonging to a live mech. (2) On respawn, PaintTextureCloudProvider.DownloadAsync returns same-frame from the local disk cache, so PaintTextureSynchronizer applies textures to the root PaintRendererSet before MP_PlayerMech.SetupArms has merged the arm renderers in via TryMergeIntoParentSet, so the arm never gets the paint; fix by caching last-applied (color, surface) on PaintRendererSet and re-pushing it onto newly-merged children in TryMergeIntoParentSet (mirrors PaintshopCompositor.cs ~491 PushOutputRT call). Read that folder's CLAUDE.md and .claude/guides/systems/multiplayer/paintshop.md first (PropertyBlockMaterialSwapper invariants, PaintRendererSet as sole paint writer) before starting. Omer asked earlier in the thread for a more detailed repro/video since he was unsure it reproduces consistently - report back to Omer/Amit on the card with repro confirmation once verified, using the repro steps Big Sys provided: kill a mech, have the dying player look at their own dropped arm (should show paint not just polish) while another player also looks at it, then let that player respawn and check the new mech's arm has paint immediately.\n\nJOB TYPE:\nBUG FIX - Labelled 'Bug' and 'Major', and the description reports existing behaviour going wrong (missing paint after death/respawn)\n\nGAME MODE:\nMULTIPLAYER - Labelled 'PVP' and the description discusses multiple players seeing each other's mechs, and the affected code is under Assets/__Multiplayer/Scripts/Mech/Paintshop/",
+  "commit_ref": "master",
+  "commit_sha": "ea567024eb5b6f8d221f8ad9c7123d9e8e0454d5",
+  "work_branch": "Automations/JuniorDev/dcaa3ed1-085f-4fdf-ab30-0bdb6d094259_38160744332",
+  "pr_url": null,
+  "files_changed": [
+    "Assets/__Multiplayer/Scripts/Mech/Paintshop/PaintRendererSet.cs",
+    "Assets/__Multiplayer/Scripts/Mech/MP_MechArm.cs"
+  ],
+  "verified": [
+    "Local mech in Joint: body and both attached arms have Cover _WhiteParams=1 after spawn",
+    "Combat/Multiplayer/Die: after the old mech (and its PaintshopCompositor) was destroyed, all 4 debris arm renderers kept _WhiteParams=1",
+    "Respawned mech's arm renderers have _WhiteParams=1 right after respawn",
+    "Second death: all 8 debris arm renderers from both deaths kept _WhiteParams=1; new mech arms painted again",
+    "No new console errors (only microphone-driver errors from the cloud machine)"
+  ],
+  "not_done": [
+    "Remote viewer (second player) not tested - remotes have no compositor, so the clear this fixes never runs there",
+    "The respawn cache-hit timing (paint loaded before arms are set up) was not reproduced failing before the fix; only the after-fix painted state was checked",
+    "The test profile has no custom paint design, so painted vs unpainted is not visible in the screenshots - the evidence is the _WhiteParams values; a hand check with a real paint design is recommended before replying to Omer/Amit on the card"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID.",
+    "[Recorder] [UD Photon Voice Chat(Clone)] InputFactory creation failure: failed to getRecordDriverInfo: ERR_INVALID_PARAM."
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.24,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-debris-arm-left-after-mech-teardown-90",
+      "caption": "Left debris arm on the ground after the dead mech was removed; dark grey-brown cover (this profile's default paint), no stripped/bare look; _WhiteParams=1 read at the same time"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-debris-arm-left-after-mech-teardown-270",
+      "caption": "Same left debris arm from the other side, same cover shading"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-debris-arm-right-after-mech-teardown-45",
+      "caption": "Right debris arm, small and dimly lit; cover matches the left arm"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-debris-arm-right-after-mech-teardown-180",
+      "caption": "Right debris arm from behind"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-respawned-mech-arm-left-90",
+      "caption": "Respawned mech's left arm with pilot and red hand; arm cover has the same grey-brown paint as the debris arms"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-respawned-mech-arm-left-0",
+      "caption": "Respawned left arm, front view"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-respawned-mech-arm-right-270",
+      "caption": "Respawned right arm"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-debris-arms-red-test-paint-after-second-death-90",
+      "caption": "Debris arms after a red test texture and a second death; red does not show (compositor re-pushed its output or first-death debris framed) - not evidence either way"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-debris-arms-red-test-paint-after-second-death-270",
+      "caption": "Same as above from the other side"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-respawned-mech-body-and-arms-45",
+      "caption": "Respawned mech body and arms, wide; camera positions reported blocked"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-both-debris-arms-0",
+      "caption": "Both debris arms together, wide; camera positions reported blocked"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "non-isolated-wide-debris-arms-45",
+      "caption": "Debris arms in the Joint scene, wide, not isolated"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-respawned-mech-90",
+      "caption": "Respawned mech in the Joint scene, wide, not isolated"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-both-debris-arms-180",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-wide-regression-check-both-debris-arms-90",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-wide-regression-check-respawned-mech-body-and-arms-135",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-respawned-mech-body-and-arms-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "non-isolated-wide-debris-arms-135",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "non-isolated-wide-debris-arms-225",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_20.webp",
+      "name": "non-isolated-wide-debris-arms-315",
+      "caption": ""
+    },
+    {
+      "file": "SCREENSHOT_21.webp",
+      "name": "non-isolated-wide-respawned-mech-270",
+      "caption": ""
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "36db207a-9cf0-4c7c-997c-77713d102dba",
+  "session_job_result": "failure",
+  "github_run_id": "38160774134",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38160774134",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1x7sOpHsNePYBbt9_KjEpy7a6Ho0HmXo1"
+}

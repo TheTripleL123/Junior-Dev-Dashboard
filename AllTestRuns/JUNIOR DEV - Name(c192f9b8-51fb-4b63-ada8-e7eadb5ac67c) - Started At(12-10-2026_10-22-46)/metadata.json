@@ -1,0 +1,141 @@
+{
+  "test_name": "Joint camera freezes game 1s on first view - c192f9b8-51fb-4b63-ada8-e7eadb5ac67c",
+  "timestamp": "12-10-2026_10-22-46",
+  "finished_at": "12-10-2026_10-40-05",
+  "duration_minutes": 17,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "inconclusive",
+  "partial": false,
+  "summary": "Inconclusive because the freeze only happens on a headset, so the editor can't show whether it is gone. Putting the camera in the warmup scene was already tried in September and failed on device, because that camera filmed the warmup scene and not the Joint. Instead, the photo booth camera now films the Joint once while the level loads behind the fade, so its first-time cost is paid there. In the editor the booth screen still turns on when the mech walks up to it and off when the mech leaves.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: game freezes for 1 second when walking in front of the joint's camera for the first time\n\nDESCRIPTION:\nit happens only the first time so I guess the solution would be to put it in the warmup scene and let the 1 second freeze happen there?\n\n**Related**\n- [Warmup should include the joint camera](/c/04a60fb0)\n\nREQUEST (from Amit):\n@Big Sys investigate and fix\n\nEXTRA (from the card):\nOmer suggested putting the joint camera in the warmup scene, mentioning another ticket may already cover it.\n\nJOB TYPE:\nBUG FIX - labeled \"Bug\" and reports the game freezing for 1 second\n\nGAME MODE:\nMULTIPLAYER - has the \"PVP\" label",
+  "commit_ref": "master",
+  "commit_sha": "719f5ba7be4b2b22430c7e724fd602f740fa7828",
+  "work_branch": "Automations/ClaudeJuniorDev/c192f9b8-51fb-4b63-ada8-e7eadb5ac67c",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/95",
+  "files_changed": [
+    "Assets/__Multiplayer/Scripts/PhotoBooth/PhotoBoothClient.cs",
+    "ProjectSettings/EditorBuildSettings.asset (reverted to master - unrelated editor rewrite left by the earlier session's commit)"
+  ],
+  "verified": [
+    "Joint load: PhotoBoothClient.Start ran, camera component disabled, Mirror Camera GameObject restored to inactive",
+    "RenderMirrorAtLoad writes into Mirro RT (centre pixel 0,0,0,0 -> 0.027,0.024,0.008,1) and restores the GameObject to inactive, no errors",
+    "Mech placed in front of the booth screen: Mirror Camera GameObject turns on and the screen shows the live mirror",
+    "Mech moved out of the booth volume: Mirror Camera GameObject turns off and the screen is cleared"
+  ],
+  "not_done": [
+    "The ~1s freeze itself was not reproduced or measured - it only happens on device (the editor uses D3D11 with cached shader variants); needs a Quest check",
+    "First photo capture (CaptureShot) first-use cost - not part of the report, not changed",
+    "Booth photo session and QuickCaptureRecorder camera hold regression not exercised"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no microphone on the cloud machine - unrelated)",
+    "Connection lost. OnStatusChanged to DisconnectByServerTimeout (Photon voice, after pausing the editor - unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 3.05,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "non-isolated-wide-booth-screen-mech-in-front-60",
+      "caption": "Booth screen behind the mech's cockpit with the live mirror image on it (mech and name tag) - camera on while the mech is in front"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "non-isolated-wide-booth-screen-mech-in-front-100",
+      "caption": "Booth area from farther out with the mech in front of the screen (screen reported partly hidden from this angle)"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "non-isolated-wide-booth-screen-mech-in-front-140",
+      "caption": "Booth area from another angle with the mech in front of the screen (screen reported partly hidden)"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "non-isolated-wide-booth-screen-camera-off-80",
+      "caption": "Mech gone from the booth: through a gap between walls the screen shows a flat green with no live image - camera off, RT cleared"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "non-isolated-wide-booth-screen-camera-off-120",
+      "caption": "Booth area after the mech left, from a wider angle (screen reported partly hidden)"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-booth-screen-live-mirror-mech-in-front-70",
+      "caption": "Isolated framing on the screen: sky, flat ground and a small green figure - the screen itself did not draw when isolated, so this is not proof of the live mirror"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-booth-screen-live-mirror-mech-in-front-90",
+      "caption": "Same isolated framing from another angle - small green figure on flat ground; screen not drawn"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-booth-screen-live-mirror-mech-in-front-50",
+      "caption": "Isolated framing on the screen with the mech in front (not read; isolated screen does not draw)"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-booth-screen-live-mirror-mech-in-front-110",
+      "caption": "Isolated framing on the screen with the mech in front, high angle (not read)"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-close-booth-screen-camera-off-mech-away-70",
+      "caption": "Isolated framing after the mech left: only sky and flat ground, the green figure is gone"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-close-booth-screen-camera-off-mech-away-110",
+      "caption": "Isolated framing after the mech left, high angle (not read)"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-booth-and-mech-camera-on-90",
+      "caption": "Regression set (booth + mech, camera on) - framing far too wide (booth root spans ~700 m), not useful"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-booth-and-mech-camera-on-45",
+      "caption": "Regression set, camera on - framing too wide, mech reported hidden"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "isolated-wide-regression-check-booth-and-mech-camera-on-135",
+      "caption": "Regression set, camera on - framing too wide, mech reported hidden"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "isolated-wide-regression-check-booth-panel-camera-off-60",
+      "caption": "Booth panel isolated, camera off - framing too wide (~700 m), not useful"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "isolated-wide-regression-check-booth-panel-camera-off-90",
+      "caption": "Booth panel isolated, camera off - framing too wide, not useful"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "isolated-wide-regression-check-booth-panel-camera-off-120",
+      "caption": "Booth panel isolated, camera off - framing too wide, not useful"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-A",
+  "session_id": "115e757c-b975-4e0b-b1ca-571a42949ec3",
+  "session_job_result": "success",
+  "github_run_id": "38235400885",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38235400885",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1muhjpjwX3Bc6KgmhFGCKQqEuq4KQtbui"
+}

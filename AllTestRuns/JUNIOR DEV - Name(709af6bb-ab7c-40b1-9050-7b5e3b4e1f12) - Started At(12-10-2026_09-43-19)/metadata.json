@@ -1,0 +1,159 @@
+{
+  "test_name": "Rampage error spam and SpawnHandle leak crash - 709af6bb-ab7c-40b1-9050-7b5e3b4e1f12",
+  "timestamp": "12-10-2026_09-43-19",
+  "finished_at": "12-10-2026_10-00-34",
+  "duration_minutes": 17,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed: I set up a bot spawn that fails in Rampage, and the gate let go of it right away instead of staying stuck and spamming 'still no bot'. This puts back the earlier session's fix, which was lost when the commit step failed. When a spawn ends with no bot, the game now logs it once, frees the gate and gives back the reserved bot budget. Normal spawns and a real wave still work. The render property block spam was already fixed on master after the build that crashed; two more spots that write by material index now also check the index first.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: [UHTI (see prev log) ]Rampage memory crash\n\nDESCRIPTION:\ngame crashed while in 2H, 5+Ton rampage session, his report log shows 8,400 errors(see the prev log of UHTI).\n\nfirst we have 2 errors that were spammed tons of times - the render property block exception and the index out of range which are probably related and were spammed around 6600 times together, I stumbled upon both being spammed in different report logs too.\n\nthen there is the \"Getting an update for a SpawnHandle but still no bot!\" which ran over 800 times and after checking with Claude it could be the leak as we allocate handles for the bots we are about to spawn, but some of them do not spawn like the error shows, which then we never release them.\n\nREQUEST (from Amit):\n@Big Sys dispatch jude again, it already fixed this issue but we had a problem with the workflows commit+push+pr, now it's okay so just put the changes in again\n\nEXTRA (from the card):\n- Log report UHTI (version 1.5.3.12227, Production, player Spacelaikaboss) - Log report from player Spacelaikaboss, version 1.5.3.12227, Production build\n- Commit ca261ce971 (one-hamsa/underdogs): minor \u2014 https://github.com/one-hamsa/underdogs/commit/ca261ce97161a545e865309b568318f481f297bc - Commit message marked as 'minor'\nAmit noted the fix was already implemented by jude once but lost due to a problem with the commit+push+PR workflow, and now needs to be reapplied.\n\nJOB TYPE:\nBUG FIX - labeled 'Bug' and 'Major', and the title/description describe a crash with error logs\n\nGAME MODE:\nSINGLEPLAYER - card has the 'SinglePlayer' label",
+  "commit_ref": "master",
+  "commit_sha": "719f5ba7be4b2b22430c7e724fd602f740fa7828",
+  "work_branch": "Automations/JuniorDev/709af6bb-ab7c-40b1-9050-7b5e3b4e1f12_38159813711",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/93",
+  "files_changed": [
+    "Assets/Scripts/Combat/Run/Levels/LevelRunner.cs",
+    "Assets/Scripts/Combat/Arena/IBotGate.cs",
+    "Assets/Scripts/Combat/Arena/BotGateBase.cs",
+    "Assets/Scripts/Rendering/RendererPropertyBlock.cs"
+  ],
+  "verified": [
+    "Roach prewarm queue with 2 destroyed bots -> SpawnBotThrottledAsync returned null, logged 'Failed to spawn bot', no 'still no bot!' error, Gate 1 havePendingSpawns back to False",
+    "Normal spawns through SpawnBotThrottledAsync: Roach from queue (Gate 1), Roach via empty-queue dynamic path (Gate 3), Bombot (Gate 5), Junkdog (Gate 6); all gates cleared",
+    "Rampage replay with real waves: after 60 s all 7 gates havePendingSpawns False, no SpawnHandle / RendererPropertyBlock / index-out-of-range errors",
+    "Compiled clean"
+  ],
+  "not_done": [
+    "UHTI log stack traces not read (log not available in the session); neither error is proven to cause the memory crash itself",
+    "Why a 1.5.3 spawn ended with no bot is not confirmed (stale or shared prewarm-queue entries are the likely path)",
+    "Exception/cancellation path not covered: if the spawn throws (e.g. bad prefab name, NRE in BotGates.PrepareBotForInstantiationAsync:152) the handle still stays in the gate",
+    "Existing temporary-bot-cost mismatch (reserved per approved spawn, released per bot) left as is",
+    "The 6 regression wide shots were framed on the gate and show the bot hidden; regression is judged from gate state and console"
+  ],
+  "configs": [
+    "Game Modes/Quick Rampage",
+    "Combat/Dont Spawn Enemies",
+    "Combat/Invulnerable/God",
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation"
+  ],
+  "console_errors": [
+    "Failed to spawn bot 'Roach' - removing its pending spawn from gate 'Gate 1' (expected, the new log from the set-up failure case)",
+    "System.NullReferenceException in BotGates.PrepareBotForInstantiationAsync:152 (QA input error: misspelled prefab name 'BomBot')",
+    "Interaction was issued to kill (UnsafeKill) entity Gas Balloon Prop (4), but did not kill it! - FIX ME! (wave replay, unrelated)",
+    "Found locked collision ignore pair who's colliders were destroyed. (wave replay, unrelated)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.28,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-roach17-gate1-spawned-after-failed-spawn-90",
+      "caption": "Roach 17 standing at Gate 1 (gate sign visible above), spawned normally on the gate that had the failed spawn - the gate was not blocked"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-roach17-gate1-spawned-after-failed-spawn-200",
+      "caption": "Roach 17 at Gate 1 from behind-left, isolated"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-roach17-gate1-spawned-after-failed-spawn-0",
+      "caption": "Roach 17 at Gate 1 from the front, isolated"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-roach17-gate1-spawned-after-failed-spawn-300",
+      "caption": "Roach 17 at Gate 1 from the right, isolated"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-roach19-normal-spawn-120",
+      "caption": "Roach 19, spawned at Gate 3 through the empty-queue dynamic path, isolated (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-bombot9-normal-spawn-120",
+      "caption": "BomBot 9, spawned at Gate 5, isolated (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-junkdog1-normal-spawn-120",
+      "caption": "Junkdog 1, spawned at Gate 6, isolated (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-roach19-gate3-normal-spawn-45",
+      "caption": "Regression wide of Gate 3 - framed on the gate bounds, Roach 19 reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-roach19-gate3-normal-spawn-225",
+      "caption": "Regression wide of Gate 3 from the other side - Roach 19 reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-bombot9-gate5-normal-spawn-90",
+      "caption": "Regression wide of Gate 5 - BomBot 9 reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-bombot9-gate5-normal-spawn-270",
+      "caption": "Regression wide of Gate 5 from the other side - BomBot 9 reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "isolated-wide-regression-check-junkdog1-gate6-normal-spawn-135",
+      "caption": "Regression wide of Gate 6 - Junkdog 1 and the gate reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "isolated-wide-regression-check-junkdog1-gate6-normal-spawn-315",
+      "caption": "Regression wide of Gate 6 from the other side - Junkdog 1 reported hidden; shows nothing useful"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-roach17-gate1-45",
+      "caption": "Roach 17 at Gate 1 in the arena, wide, unobstructed (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-roach17-gate1-135",
+      "caption": "Roach 17 at Gate 1 in the arena, wide, second angle (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-roach17-gate1-225",
+      "caption": "Roach 17 at Gate 1 in the arena, wide, third angle (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_17.webp",
+      "name": "non-isolated-wide-roach17-gate1-315",
+      "caption": "Roach 17 at Gate 1 in the arena, wide, fourth angle (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_18.webp",
+      "name": "non-isolated-wide-bombot9-gate5-90",
+      "caption": "BomBot 9 at Gate 5 in the arena, wide (not individually inspected)"
+    },
+    {
+      "file": "SCREENSHOT_19.webp",
+      "name": "non-isolated-wide-bombot9-gate5-270",
+      "caption": "BomBot 9 at Gate 5 in the arena, wide, other side (not individually inspected)"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-C",
+  "session_id": "1edfa0af-cd9d-4efc-9384-1e9f8ef1ea92",
+  "session_job_result": "success",
+  "github_run_id": "38231128409",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38231128409",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1e9xW8WGUJMAhyh03Yg8_3qKQvTkixOeJ"
+}

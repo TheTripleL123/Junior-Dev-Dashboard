@@ -1,0 +1,109 @@
+{
+  "test_name": "No automatic reports sent during staging playtest - a9950f46-5c43-400a-bf7f-81ca65aba248",
+  "timestamp": "12-10-2026_16-23-26",
+  "finished_at": "12-10-2026_16-40-33",
+  "duration_minutes": 17,
+  "started_by": "Usul",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed because a Rumble round end now triggers the automatic report, and I saw that call happen in the editor. Automatic reports only go out at a few checkpoints: a single-player restart, after a single-player fight, and a Ball Tag round end. Rumble had none, so a playtest of only Rumble matches sent nothing. I added the checkpoint at the end of every Rumble round, the same way Ball Tag does it. The upload itself is skipped in the editor on purpose, so it still needs one check on a staging build.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: no auto-reports during playtest, why? we used to have a mechanism that for staging sends reports automatically\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Usul):\n@Big Sys ship.\n\nEXTRA (from the card):\nOmer suggested the checkpoints might not be good for rumble, as a possible lead.\n\nJOB TYPE:\nBUG FIX - the task says a mechanism \"used to have\" auto-reports working and it no longer does, in staging/build\n\nGAME MODE:\nUNSURE - JUDE should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "87b9eba4d3e90dc1699b84794443bf0f5af7cb74",
+  "work_branch": "Automations/JuniorDev/no-auto-reports-playtest_80",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/100",
+  "files_changed": [
+    "Assets/__Multiplayer/_Tech/Scripts/LevelLogic/Deathmatch/DeathmatchController.cs"
+  ],
+  "verified": [
+    "Shithole Rumble, Active->Resetting round end (HandleStateChanged invoked with copies of the live row): ReportUtility.TryAutoReportInBackground traced once, caller DeathmatchController.HandleStateChanged",
+    "Resetting->Active round restart: no auto-report call, respawn ran, no new console errors",
+    "Project compiles clean"
+  ],
+  "not_done": [
+    "Actual upload not observed: ReportUtility skips it in the editor (!Application.isEditor), needs a staging player build",
+    "Round end was triggered by invoking the state handler, not by a server round end (10 kills or a dev reducer on a shared database)",
+    "Did not check that the playtest build was built with STAGING_ENV - a build with no environment define falls back to Production and never auto-reports"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Shithole"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (pre-existing, no mic on cloud machine)",
+    "DMGFX TurboOn - P.%100 Cannot find a controller to subscribe this DMGEventHandler to (pre-existing, at scene load)"
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.19,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-local-mech-after-round-end-180",
+      "caption": "Local mech isolated after the round-end transition, name tag and health bar intact"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-local-mech-after-round-end-90",
+      "caption": "Local mech after round end, side view"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-local-mech-after-round-end-0",
+      "caption": "Local mech after round end, front view"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-local-mech-after-round-end-270",
+      "caption": "Local mech after round end, other side"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-wide-regression-check-mech-and-deathmatch-after-restart-45",
+      "caption": "Mech and Deathmatch controller isolated, wide, after the restart transition"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-wide-regression-check-mech-and-deathmatch-after-restart-135",
+      "caption": "Same set after restart from 135 deg (view partly blocked per capture log)"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-mech-and-deathmatch-after-restart-225",
+      "caption": "Same set after restart from 225 deg"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "non-isolated-wide-shithole-mech-after-round-end-45",
+      "caption": "Shithole Rumble around the local mech, unisolated, scene intact"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "non-isolated-wide-shithole-mech-after-round-end-135",
+      "caption": "Shithole Rumble wide from 135 deg, mech blocked by level geometry"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-shithole-mech-after-round-end-225",
+      "caption": "Shithole Rumble wide from 225 deg"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "non-isolated-wide-shithole-mech-after-round-end-315",
+      "caption": "Shithole Rumble wide from 315 deg, mech blocked by level geometry"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "f5cd277c-1f36-48c2-923d-c2ee18099753",
+  "session_job_result": "success",
+  "github_run_id": "38276398965",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38276398965",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1x5VSB36kXkJPs6KIu0aNM2_onmC5dtAC"
+}

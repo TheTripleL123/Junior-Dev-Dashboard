@@ -1,0 +1,40 @@
+{
+  "test_name": "GymBotArea bot spawn click race - 3c4d898e-ff3e-411a-be6b-78e912513b5b",
+  "timestamp": "07-10-2026_10-44-43",
+  "finished_at": "07-10-2026_10-46-45",
+  "duration_minutes": 2,
+  "started_by": "Nisan",
+  "isArchived": false,
+  "result": "aborted",
+  "partial": false,
+  "summary": "Nothing is left to implement: the spawn-claim race fix is already on master. Commit 3fffd89adf (PR #85, 'GymBotArea: spawn only after the server accepts the spawn claim, so simultaneous presses spawn one bot') changes GymBotArea.cs and the two multiplayer guides exactly as the previous session's commit on this branch does. The diff between origin/master and this branch for those files is empty. The fix uses a transactional StringKeyDictionary insert, as Nisan asked: the server accepts one client's claim and rejects the other, so only one bot spawns. Its commit message says it was tested with two players in MPPM (5 synchronized double presses, 1 bot each). The request ('@Big Sys Merge and mark as done') asks a human to merge and close the card; this session cannot merge or change card status, so no code was changed and no PR was opened.",
+  "job_type": null,
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: GymBotArea Bot Spawn click race\n\nDESCRIPTION:\n(none)\n\nREQUEST (from Nisan):\n@Big Sys Merge and mark as done after that\n\nEXTRA (from the card):\n- Commit 1c736658e2 (one-hamsa/underdogs): Room-unique NPC mech indices + purge departed clients' client objects \u2014 https://github.com/one-hamsa/underdogs/commit/1c736658e2159077ae4084cca321a5c5d2bcf091 - touches room-unique NPC mech indices and purges client objects of departed clients\n- Commit acf9038926 (one-hamsa/underdogs): Shared NPC mech registry bucket + NPC parts follow the root's owner \u2014 https://github.com/one-hamsa/underdogs/commit/acf9038926d6000478b7f1d3178ee9884f5a08d4 - touches shared NPC mech registry bucket and makes NPC parts follow the root's owner\n- Commit eb9b111374 (one-hamsa/underdogs): VRPluginSync: input source is always injected, registers with its mech index \u2014 https://github.com/one-hamsa/underdogs/commit/eb9b111374bc07c4c510fb4a26b6ceb028f5d93a - touches VRPluginSync so the input source is always injected and registers with its mech index\n- Commit 84d58f5227 (one-hamsa/underdogs): Use the same root object for npc vr plugins \u2014 https://github.com/one-hamsa/underdogs/commit/84d58f52273e93e37165a7aa7506a64c4d1cc8b9 - makes npc vr plugins use the same root object\n- Commit c694d19f4c (one-hamsa/underdogs): NPC input syncs through its own VRPluginSync, one input path for every mech \u2014 https://github.com/one-hamsa/underdogs/commit/c694d19f4c9be2b28f6dd291e3dc995664037587 - routes NPC input through its own VRPluginSync, one input path for every mech\n- Commit bd85b66b53 (one-hamsa/underdogs): NPC Learn guides \u2014 https://github.com/one-hamsa/underdogs/commit/bd85b66b53be3c5d206ee819e791d3903e1a51be - adds NPC Learn guides\n- Commit 3fffd89adf (one-hamsa/underdogs): GymBotArea: spawn only after the server accepts the spawn claim, so simultaneous presses spawn one bot (#85) \u2014 https://github.com/one-hamsa/underdogs/commit/3fffd89adfe938e7ab70fa553c25930640409c7a - GymBotArea spawns only after the server accepts the spawn claim, so simultaneous presses spawn one bot - references issue #85\nNisan said to utilize StringKeyDictionary so one client spawns a mech while the other gets a rejection when trying to use this dictionary, and noted another approach could be used if a better one is thought of.\n\nJOB TYPE:\nBUG FIX - the task describes a \"click race\" where simultaneous spawn presses cause an issue, and the linked commit describes fixing simultaneous presses spawning multiple bots\n\nGAME MODE:\nUNSURE - junior-dev should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "c898eae9f48209d72858385a36bcc243533adc41",
+  "work_branch": "Automations/ClaudeJuniorDev/3c4d898e-ff3e-411a-be6b-78e912513b5b",
+  "pr_url": null,
+  "files_changed": [],
+  "verified": [
+    "origin/master contains 3fffd89adf, and its GymBotArea.cs, npc-mechs.md and realtime-models.md match this branch's previous-session commit (empty diff)"
+  ],
+  "not_done": [
+    "Merging and marking the card done - the request asks a human to do this, and the junior-dev workflow is not allowed to write to git or change card status"
+  ],
+  "configs": [],
+  "console_errors": [],
+  "fix_rounds": 0,
+  "agent_cost_usd": 0.35,
+  "session_end": "success",
+  "screenshots": [],
+  "has_thumbnail": false,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "5f6b78bd-0aaf-45ba-834f-79ede73911dc",
+  "session_job_result": "success",
+  "github_run_id": "37608778155",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/37608778155",
+  "test_successful": false,
+  "drive_link": "https://drive.google.com/drive/folders/1zpN43SaIDEjoSi5W3XsRG6Q5XedUdbMs"
+}

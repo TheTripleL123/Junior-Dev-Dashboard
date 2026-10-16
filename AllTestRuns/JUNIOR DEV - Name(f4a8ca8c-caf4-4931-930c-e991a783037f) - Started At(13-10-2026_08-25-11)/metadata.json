@@ -1,0 +1,135 @@
+{
+  "test_name": "Player kill count shows 2.10K instead of 3K - f4a8ca8c-caf4-4931-930c-e991a783037f",
+  "timestamp": "13-10-2026_08-25-11",
+  "finished_at": "13-10-2026_08-38-21",
+  "duration_minutes": 13,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed because a player's kill label set to 2999 kills now reads 3.0K in game, where it used to read 2.10K. The shared number formatter rounded the digit after the dot on its own and never carried it into the whole number. It now rounds once and carries. 2900 still reads 2.9K and 1950 now reads 2.0K.",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: [NXAB] bug with displaying the kills of a player\n\nDESCRIPTION:\na player had 2.9K kills then when he was close to 3K it displayed 2.10K. cause:\n\nin the file '`StringBuilderExtFormat.cs`' in the class '`StringBuilderExtensions`' we format each string with a way that rounds the number after the dot, which causes a number like 2999 to be rounded up to 2.10\n\nREQUEST (from Amit):\n@Big Sys investigate and fix\n\nJOB TYPE:\nBUG FIX - labeled 'Bug' and the description reports incorrect display of kill count (2.9K showing as 2.10K)\n\nGAME MODE:\nUNSURE - JUDE should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "96fe6f78756e56d974dcc8627a330a71fad42a4c",
+  "work_branch": "Automations/JuniorDev/player-kills-display-rounding_81",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/101",
+  "files_changed": [
+    "Assets/Standard Assets/One Humus/Scripts/Data/Strings/StringBuilderExtNumeric.cs"
+  ],
+  "verified": [
+    "Edit mode ConcatFormat \"{0:0.0}K\": 2999 -> 3.0K, 2900 -> 2.9K, 1950 -> 2.0K, 1049 -> 1.0K, 1000 -> 1.0K, 9999 -> 10.0K; \"{0:0.0}M\": 2960000 -> 3.0M",
+    "Regression of the same function: default 5 d.p. (1.5 -> 1.50000, 1.00001 -> 1.00001), 2 d.p. 2.05 -> 2.05, negatives -2.5 -> -2.5 and -0.5 -> -0.5, padded {0:00.0} 3.25 -> 03.3, 0 d.p. 2.5 -> 3",
+    "In play (Joint): the local mech's Mech ID 'Kills All Time' label, written through its TextTemplate with the same AppendFormat call as MPTotalKillsText.ToKM, shows 3.0K for 2999, 2.9K for 2900, 2.0K for 1950"
+  ],
+  "not_done": [
+    "MPAllTimeScoreText.ToK (BallTag stats) uses the same format and function - covered by the edit-mode check, not shown in play (same code path: ConcatFormat -> Concat(float, dp))",
+    "Live cage stats with 2999 kills from SpacetimeDB were not shown - shared DB is never written; the label was driven through its own TextTemplate with the production format call",
+    "999,950-999,999 kills now show 1000.0K (ToKM switches to M at 1,000,000) - previously 999.10K; threshold left unchanged"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "UnityEngine.UnassignedReferenceException: The variable colliders of ColliderIgnoreGroup has not been assigned.",
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID.",
+    "[Recorder] [UD Photon Voice Chat(Clone)] InputFactory creation failure: failed to getRecordDriverInfo: ERR_INVALID_PARAM."
+  ],
+  "fix_rounds": 0,
+  "agent_cost_usd": 2.01,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K-0_180",
+      "caption": "Mech ID name tag, front: skull kill counter reads 3.0K for 2999 kills (was 2.10K)"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K-10_160",
+      "caption": "Same name tag from slightly above and left, kill counter 3.0K"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K-20_200",
+      "caption": "Name tag from above-right, kill counter 3.0K"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K-0_170",
+      "caption": "Name tag at eye level, slight left angle, kill counter 3.0K"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K--10_190",
+      "caption": "Name tag from slightly below, kill counter 3.0K"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-kills-2999-shows-3.0K-15_180",
+      "caption": "Name tag from above, kill counter 3.0K"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-wide-regression-check-kills-2900-shows-2.9K-180",
+      "caption": "Wider view, 2900 kills: counter reads 2.9K (the case that already worked), mech silhouette below"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-wide-regression-check-kills-2900-shows-2.9K-160",
+      "caption": "2900 kills from the left, wide: counter 2.9K"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-wide-regression-check-kills-2900-shows-2.9K-200",
+      "caption": "2900 kills from the right, wide: counter 2.9K"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "isolated-wide-regression-check-kills-1950-shows-2.0K-170",
+      "caption": "1950 kills (another carry case), wide: counter 2.0K instead of 1.10K"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "isolated-wide-regression-check-kills-1950-shows-2.0K-190",
+      "caption": "1950 kills from the right, wide: counter 2.0K"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "non-isolated-wide-kills-2999-shows-3.0K-165",
+      "caption": "Environment shot, not isolated: camera blocked by Joint geometry around the mech, label not readable"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-kills-2999-shows-3.0K-135",
+      "caption": "Environment shot from 135 deg, wide search reported the label hidden by geometry"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-kills-2999-shows-3.0K-180",
+      "caption": "Environment shot from behind the camera line, label reported hidden by geometry"
+    },
+    {
+      "file": "SCREENSHOT_15.webp",
+      "name": "non-isolated-wide-kills-2999-shows-3.0K-195",
+      "caption": "Environment shot from 195 deg, label reported hidden by geometry"
+    },
+    {
+      "file": "SCREENSHOT_16.webp",
+      "name": "non-isolated-wide-kills-2999-shows-3.0K-225",
+      "caption": "Environment shot from 225 deg, label reported hidden by geometry"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "e4ce7a37-cf97-4f23-9943-1bea9c9522fa",
+  "session_job_result": "success",
+  "github_run_id": "38368543316",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38368543316",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1-60MU5Q0tUk-5J4VNnkkcQY31KRzpPO0"
+}

@@ -1,0 +1,129 @@
+{
+  "test_name": "Normcore disconnect not recovered, player stuck - c87c5a00-4d18-4ad8-af14-adf190dede44",
+  "timestamp": "12-10-2026_10-15-59",
+  "finished_at": "12-10-2026_10-42-40",
+  "duration_minutes": 27,
+  "started_by": "Amit",
+  "isArchived": false,
+  "result": "pass",
+  "partial": false,
+  "summary": "Passed: in the Joint, after the room connection was dropped, the game reconnected the player to the same room and respawned their mech, and when reconnecting is impossible it now triggers the existing 'connection lost' exit that takes the player out of the server room. Before this, nothing ever tried to reconnect, and if the room failed to connect when the level opened, nothing took the player out of the server room either. The game now retries up to 3 times, and only after that runs the existing exit (leave the server room, show the popup, restart).",
+  "job_type": "bug",
+  "abort_reason": null,
+  "failure_kind": null,
+  "instructions": "TASK: when Normal is disconnected, we do not recover it for the player and do not log them out of STDB, so they must restart the game\n\nDESCRIPTION:\n[Log GKLH \u00b7 15OS ](https://15os.onehamsa.com/logging?code=GKLH)\n\n<https://discord.com/channels/276104181067022336/1529068845317492787>\n\nREQUEST (from Amit):\n@Big Sys investigate and fix\n\nJOB TYPE:\nBUG FIX - task reports existing behaviour going wrong: when Normal is disconnected it is not recovered and the player is not logged out of STDB, forcing a restart\n\nGAME MODE:\nUNSURE - JUDE should decide from game context",
+  "commit_ref": "master",
+  "commit_sha": "719f5ba7be4b2b22430c7e724fd602f740fa7828",
+  "work_branch": "Automations/JuniorDev/normal-disconnect-recovery_38231311734",
+  "pr_url": "https://github.com/one-hamsa/underdogs/pull/96",
+  "files_changed": [
+    "Assets/__Multiplayer/_Tech/Scripts/Core/MultiplayerScene.cs",
+    "Assets/__Multiplayer/_Tech/Scripts/MultiplayerConnectionMonitor.cs"
+  ],
+  "verified": [
+    "Joint join connects to the Normcore room once",
+    "a local realtime.Disconnect() (soft-move case) does not start a reconnect",
+    "the lost-room path (StartReconnect) reconnects on attempt 1/3 to the same Joint room and respawns the local mech, twice",
+    "after adding RequestRespawnAssignment the reconnect respawn has no '[Elevator spawn-in] No spawn assignment' error",
+    "reconnect give-up raises OnReconnectFailed and MultiplayerConnectionMonitor requests QuitMultiplayer ('Would quit multiplayer' in editor)"
+  ],
+  "not_done": [
+    "a real network drop (non-local Normcore disconnect event) was not produced; the event-type filter was read in code, the local branch tested at runtime",
+    "failed first connect on scene start (ConnectOnStartAsync) not exercised at runtime",
+    "the build-only quit flow (cleanup, STDB LeaveRoom, popup, restart) not seen end to end: the editor skips it by design; it is the existing unchanged QuitMultiplayer",
+    "reconnect mid-match in an arena (Rumble, cage) not tested; only the Joint",
+    "session log GKLH could not be opened from the cloud machine, so it was not compared against the cause"
+  ],
+  "configs": [
+    "Dev/No VR",
+    "Advanced/Multiplayer/PC Room Segregation",
+    "Multiplayer/Levels/Joint"
+  ],
+  "console_errors": [
+    "[FMOD] SystemI::getRecordDriverInfo : Invalid driver ID. (no microphone on the cloud machine; also on a normal join)",
+    "[Recorder] [UD Photon Voice Chat(Clone)] InputFactory creation failure: failed to getRecordDriverInfo: ERR_INVALID_PARAM. (same cause)"
+  ],
+  "fix_rounds": 1,
+  "agent_cost_usd": 5.29,
+  "session_end": "success",
+  "screenshots": [
+    {
+      "file": "SCREENSHOT_1.webp",
+      "name": "isolated-close-mech-after-reconnect-180",
+      "caption": "Local mech EC2AMAZ-FD9V8SN back in the Joint after the first reconnect, name tag shown, isolated"
+    },
+    {
+      "file": "SCREENSHOT_2.webp",
+      "name": "isolated-close-mech-after-reconnect-0",
+      "caption": "Respawned local mech after the first reconnect, from the front-side"
+    },
+    {
+      "file": "SCREENSHOT_3.webp",
+      "name": "isolated-close-mech-after-reconnect-90",
+      "caption": "Respawned local mech after the first reconnect, from the side"
+    },
+    {
+      "file": "SCREENSHOT_4.webp",
+      "name": "isolated-close-mech-after-reconnect-270",
+      "caption": "Respawned local mech after the first reconnect, other side"
+    },
+    {
+      "file": "SCREENSHOT_5.webp",
+      "name": "isolated-close-mech-after-reconnect-45",
+      "caption": "Respawned local mech after the first reconnect, 45 degrees"
+    },
+    {
+      "file": "SCREENSHOT_6.webp",
+      "name": "isolated-close-mech-after-second-reconnect-135",
+      "caption": "Local mech respawned again after a second reconnect that followed the give-up test"
+    },
+    {
+      "file": "SCREENSHOT_7.webp",
+      "name": "isolated-close-mech-after-reconnect-round2-60",
+      "caption": "Fix round: mech respawned after reconnect with RequestRespawnAssignment, no spawn-in timeout"
+    },
+    {
+      "file": "SCREENSHOT_8.webp",
+      "name": "isolated-close-mech-after-reconnect-round2-200",
+      "caption": "Fix round: respawned mech, another angle"
+    },
+    {
+      "file": "SCREENSHOT_9.webp",
+      "name": "isolated-close-mech-after-reconnect-round2-320",
+      "caption": "Fix round: respawned mech, third angle"
+    },
+    {
+      "file": "SCREENSHOT_10.webp",
+      "name": "non-isolated-wide-joint-mech-after-reconnect-45",
+      "caption": "Joint around the spawn area after reconnect; the mech is blocked by level geometry from this position"
+    },
+    {
+      "file": "SCREENSHOT_11.webp",
+      "name": "non-isolated-wide-joint-mech-after-reconnect-135",
+      "caption": "Joint wide after reconnect; mech blocked by geometry"
+    },
+    {
+      "file": "SCREENSHOT_12.webp",
+      "name": "non-isolated-wide-joint-mech-after-reconnect-225",
+      "caption": "Joint wide after reconnect; mech blocked by geometry"
+    },
+    {
+      "file": "SCREENSHOT_13.webp",
+      "name": "non-isolated-wide-joint-mech-after-reconnect-315",
+      "caption": "Joint wide after reconnect; mech blocked by geometry"
+    },
+    {
+      "file": "SCREENSHOT_14.webp",
+      "name": "non-isolated-wide-joint-mech-after-reconnect-round2-90",
+      "caption": "Fix round, Joint wide: a dark block in front hides the mech; only a red spawn marker is visible"
+    }
+  ],
+  "has_thumbnail": true,
+  "runner_name": "Cloud-Machine-B",
+  "session_id": "75d9930b-6791-4fdc-b98b-7d9f5c207654",
+  "session_job_result": "success",
+  "github_run_id": "38234659188",
+  "run_url": "https://github.com/one-hamsa/underdogs/actions/runs/38234659188",
+  "test_successful": true,
+  "drive_link": "https://drive.google.com/drive/folders/1nF9oxMjdF_w-Htb5-R4s-3uayPKtJX7M"
+}
